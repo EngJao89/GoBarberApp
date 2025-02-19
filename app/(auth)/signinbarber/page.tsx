@@ -1,11 +1,11 @@
 import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from "expo-router";
 
 import logo from "../../../assets/images/logo.png";
 import { Colors } from "@/constants/Colors";
 
-export default function RegisterUser() {
+export default function SignInBarber() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -14,19 +14,10 @@ export default function RegisterUser() {
         </View>
 
         <View style={styles.titleContent}>
-          <Text style={styles.title}>Crie sua conta</Text>
+          <Text style={styles.title}>Login Barbeiro</Text>
         </View>
 
         <View style={styles.form}>
-        <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={16} style={styles.icon}/>
-            <TextInput 
-              placeholder='Nome' 
-              placeholderTextColor={Colors.zinc_500}  
-              style={styles.input}
-            />
-          </View>
-
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={16} style={styles.icon}/>
             <TextInput 
@@ -35,15 +26,7 @@ export default function RegisterUser() {
               style={styles.input}
             />
           </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={16} style={styles.icon}/>
-            <TextInput 
-              placeholder='Telefone' 
-              placeholderTextColor={Colors.zinc_500}  
-              style={styles.input}
-            />
-          </View>
+          
 
           <View style={styles.inputContainer}>
             <Ionicons name="lock-closed-outline" size={16} style={styles.icon}/>
@@ -55,12 +38,11 @@ export default function RegisterUser() {
           </View>
 
           <TouchableOpacity style={styles.button}>
-            <Text>Cadastrar</Text>
+            <Text>Entrar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgot} onPress={() => router.push('/(auth)/signinbarber/page')}>
-            <Ionicons name="enter-outline" size={16} style={styles.forgotIcon}/>
-            <Text style={styles.textForgot}>Ir para área de barbeiros</Text>
+          <TouchableOpacity style={styles.forgot}>
+            <Text style={styles.textGhost}>Esqueci minha senha</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -68,9 +50,12 @@ export default function RegisterUser() {
       <View style={styles.divider}></View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.buttonFooter} onPress={() => router.back()}>
-          <Ionicons name="arrow-back-outline" size={16} style={styles.iconButton}/>
-          <Text style={styles.textFooter}>Voltar para o login</Text>
+        <TouchableOpacity 
+          onPress={()=> router.push('/(auth)/registeruser/page')} 
+          style={styles.buttonFooter}
+        >
+          <Ionicons name="enter-outline" size={16} style={styles.iconButton}/>
+          <Text style={styles.textFooter}>Criar uma conta</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -136,36 +121,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: "center",
   },
-  forgotIcon: {
-    color: Colors.zinc_50,
-    marginRight: 8,
-  },
-  textForgot: {
+  textGhost: {
     color: Colors.zinc_50,
     fontWeight: "bold",
   },
   divider: {
-    backgroundColor: Colors.zinc_700,
+    backgroundColor: Colors.zinc_600,
     height: 1,
     width: '100%',
+    marginTop: 156,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -36,
-    paddingBottom: 4,
+    padding: 16,
   },
   buttonFooter: {
     flexDirection: "row",
     alignItems: "center",
   },
   textFooter: {
-    color: Colors.zinc_300,
+    color: Colors.orange_700,
     fontWeight: "bold",
   },
   iconButton: {
-    color: Colors.zinc_300,
+    color: Colors.orange_700,
     marginRight: 8,
   },
 });
