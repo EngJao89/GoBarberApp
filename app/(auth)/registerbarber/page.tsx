@@ -67,9 +67,9 @@ export default function RegisterUser() {
             <Text>Cadastrar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgot} onPress={() => router.push('/(auth)/signinbarber/page')}>
+          <TouchableOpacity style={styles.forgot} onPress={() => router.push('/')}>
             <Ionicons name="enter-outline" size={16} style={styles.forgotIcon}/>
-            <Text style={styles.textForgot}>Ir para área de barbeiros</Text>
+            <Text style={styles.textForgot}>Ir para área de usuários</Text>
           </TouchableOpacity>
         </View>
       </View>
