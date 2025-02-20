@@ -63,7 +63,7 @@ export default function RegisterUser() {
             />
           </View>
 
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity onPress={() => router.push('/(auth)/successbarber/page')} style={styles.button}>
             <Text>Cadastrar</Text>
           </TouchableOpacity>
 
