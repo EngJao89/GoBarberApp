@@ -26,4 +26,6 @@ export const Colors = {
   orange_700: '#f57c00',
   orange_800: '#ef6c00',
   orange_900: '#e65100',
+
+  success: '#04D361',
 };
