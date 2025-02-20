@@ -98,7 +98,6 @@ export default function RegisterUser() {
             )}
           />
 
-
           <Controller 
             control={control} 
             name="email" 

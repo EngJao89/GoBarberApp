@@ -14,6 +14,8 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)/registerbarber/page" options={{headerShown: false}}/>
         <Stack.Screen name="(auth)/successuser/page" options={{headerShown: false}}/>
         <Stack.Screen name="(auth)/successbarber/page" options={{headerShown: false}}/>
+
+        <Stack.Screen name="(dashboard)/userlist/page" options={{headerShown: false}}/>
       </Stack>
 
       <StatusBar style="light" />
