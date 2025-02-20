@@ -14,7 +14,7 @@ export default function Index() {
         </View>
 
         <View style={styles.titleContent}>
-          <Text style={styles.title}>Faça seu login</Text>
+          <Text style={styles.title}>Login Usuários</Text>
         </View>
 
         <View style={styles.form}>

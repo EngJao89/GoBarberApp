@@ -63,7 +63,7 @@ export default function RegisterUser() {
             />
           </View>
 
-          <TouchableOpacity onPress={() => router.push('/(auth)/success/page')} style={styles.button}>
+          <TouchableOpacity onPress={() => router.push('/(auth)/successuser/page')} style={styles.button}>
             <Text>Cadastrar</Text>
           </TouchableOpacity>
 

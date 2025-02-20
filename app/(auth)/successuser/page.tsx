@@ -4,7 +4,7 @@ import { router } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 
-export default function Success() {
+export default function SuccessUser() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
