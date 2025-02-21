@@ -1,6 +1,7 @@
-import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/constants/Colors";
+import { Card } from "@/components/Card";
 
 export default function UserList() {
   return (
@@ -15,6 +16,16 @@ export default function UserList() {
       </View>
       <View style={styles.container}>
         <Text style={styles.listTitle}>Cabelereiros</Text>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+        </ScrollView>
       </View>
     </SafeAreaView>
   )
@@ -30,7 +41,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingLeft: 16,
     paddingRight: 16,
-    paddingBottom: 24,
+    marginBottom: 180,
   },
   header: {
     width: '100%',
@@ -53,6 +64,7 @@ const styles = StyleSheet.create({
     color: Colors.zinc_100,
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 36,
   },
   profile: {
     width: 56,

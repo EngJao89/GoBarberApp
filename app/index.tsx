@@ -1,4 +1,13 @@
-import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { 
+  Image, 
+  Pressable, 
+  SafeAreaView, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import logo from "../assets/images/logo.png";
