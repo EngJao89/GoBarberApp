@@ -1,10 +1,11 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
 export function Card() {
   return (
-    <View style={styles.container}>
+    <Pressable onPress={() => router.push('/(appointment)/new/page')} style={styles.container}>
       <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar}/>
 
       <View>
@@ -20,7 +21,7 @@ export function Card() {
           <Text style={styles.nameDetails}>8h às 18h</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
