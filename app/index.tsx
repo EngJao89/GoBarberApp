@@ -39,7 +39,7 @@ export default function Index() {
 
   useEffect(() => {
     const checkToken = async () => {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('authUserToken');
       if (token) {
         router.replace('/(dashboard)/userlist/page');
       }
@@ -57,7 +57,7 @@ export default function Index() {
       const response = await api.post('auth/login', data, { withCredentials: true });
 
       if (response.data.accessToken) {
-        await AsyncStorage.setItem('authToken', response.data.accessToken);
+        await AsyncStorage.setItem('authUserToken', response.data.accessToken);
         Alert.alert(`Usuário Logado: ${data.email}, Seja Bem vindo!`);
         router.push("/(dashboard)/userlist/page");
       } else {
