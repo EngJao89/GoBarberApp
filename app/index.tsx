@@ -1,4 +1,5 @@
 import { 
+  Alert,
   Image, 
   Pressable, 
   SafeAreaView, 
@@ -8,13 +9,65 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
+import { useEffect } from "react";
+import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { z } from "zod";
 
+import api from "@/lib/axios";
 import logo from "../assets/images/logo.png";
 import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
+
+const loginSchema = z.object({
+  email: z.string().email("E-mail é obrigatório"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+});
+
+export type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function Index() {
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        router.replace('/(dashboard)/userlist/page');
+      }
+    };
+    checkToken();
+  }, []);
+
+  const onSubmit = async (data: LoginSchema) => {
+    try {
+      if (!data.email || !data.password) {
+        Alert.alert('Por favor, forneça o e-mail e a senha.');
+        return;
+      }
+
+      const response = await api.post('auth/login', data, { withCredentials: true });
+
+      if (response.data.accessToken) {
+        await AsyncStorage.setItem('authToken', response.data.accessToken);
+        Alert.alert(`Usuário Logado: ${data.email}, Seja Bem vindo!`);
+        router.push("/(dashboard)/userlist/page");
+      } else {
+        Alert.alert('Token não encontrado na resposta.');
+      }
+    } catch (error) {
+      Alert.alert('Login falhou. Verifique suas credenciais.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -27,24 +80,35 @@ export default function Index() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={16} style={styles.icon}/>
-            <TextInput 
-              placeholder='E-mail' 
-              placeholderTextColor={Colors.zinc_500}  
-              style={styles.input}
-            />
+          <View>
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={16} style={styles.icon}/>
+              <TextInput 
+                placeholder='E-mail' 
+                placeholderTextColor={Colors.zinc_500} 
+                onChangeText={(text) => setValue('email', text)}
+                value={watch("email")}
+                style={styles.input}
+              />
+            </View>
+            {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
           </View>
-          
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={16} style={styles.icon}/>
-            <TextInput 
-              placeholder='Senha' 
-              placeholderTextColor={Colors.zinc_500} 
-              style={styles.input}
-            />
+          <View>
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={16} style={styles.icon}/>
+              <TextInput 
+                placeholder='Senha' 
+                placeholderTextColor={Colors.zinc_500}
+                secureTextEntry
+                onChangeText={(text) => setValue('password', text)}
+                value={watch("password")}
+                style={styles.input}
+              />
+            </View>
+            {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
           </View>
+
 
           <TouchableOpacity onPress={() => router.push('/(dashboard)/userlist/page')} style={styles.button}>
             <Text>Entrar</Text>
@@ -158,4 +222,9 @@ const styles = StyleSheet.create({
     color: Colors.orange_700,
     marginRight: 8,
   },
+  error: {
+    color: Colors.red_600,
+    fontSize: 12,
+    marginTop: 4,
+  }
 });
