@@ -1,7 +1,8 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/constants/Colors";
 import { Card } from "@/components/Card";
+import { router } from "expo-router";
 
 export default function UserList() {
   return (
@@ -9,10 +10,15 @@ export default function UserList() {
       <View style={styles.header}>
         <View>
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
-          <Text style={styles.nameTitle}>João Ricardo</Text>
+
+          <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
+            <Text style={styles.nameTitle}>João Ricardo</Text>
+          </TouchableOpacity>
         </View>
 
-        <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
+        <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
+          <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
+        </TouchableOpacity>
       </View>
       <View style={styles.container}>
         <Text style={styles.listTitle}>Cabelereiros</Text>
