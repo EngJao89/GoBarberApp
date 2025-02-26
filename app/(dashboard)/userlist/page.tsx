@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
+import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/constants/Colors";
 import { Card } from "@/components/Card";
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
+    paddingTop: Platform.OS === "android" ? 36 : 0,
     marginTop: 24,
     marginBottom: 36,
     flexDirection: 'row',
