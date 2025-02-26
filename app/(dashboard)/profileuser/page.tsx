@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
+    paddingTop: Platform.OS === "android" ? 36 : 0,
     marginTop: 24,
     marginBottom: 36,
     flexDirection: 'row',
@@ -168,8 +169,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: Colors.orange_600,
-    marginTop: 96,
-    marginBottom: 8,
+    marginTop: 72,
+    marginBottom: 24,
     paddingTop: 14,
     paddingBottom: 14,
     borderRadius: 8,
