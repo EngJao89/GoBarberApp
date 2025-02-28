@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -6,47 +6,52 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Colors } from "@/constants/Colors";
 
-export default function Appointment () {
+export default function Appointment() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [show, setShow] = useState(false);
   const minimumDate = new Date(2020, 0, 1);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back-outline" size={32} style={styles.icon}/>
+          <Ionicons name="arrow-back-outline" size={32} style={styles.icon} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>Agendamento</Text>
 
-        <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
+        <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile} />
       </View>
 
       <View style={styles.container}>
-
         <View style={styles.dateContainer}>
           <Text style={styles.title}>Escolha a data</Text>
 
-          <DateTimePicker 
-            mode="date"
-            is24Hour={true}
-            display="spinner" 
-            value={selectedDate}
-            onChange={(event, date) => {
-              if (date) {
-                setSelectedDate(date);
-              }
-            }}
-            minimumDate={minimumDate}
-            textColor="#f4ede8"
-          />
-        </View>
-        
+          <TouchableOpacity activeOpacity={0.5} onPress={() => setShow(true)} style={styles.dateButton}>
+            <Text style={styles.dateText}>
+              {selectedDate.toLocaleDateString('pt-BR')}
+            </Text>
+          </TouchableOpacity>
 
-        <View></View>
+          {show && (
+            <DateTimePicker
+              mode="date"
+              is24Hour={true}
+              display={Platform.OS === 'android' ? 'calendar' : 'spinner'}
+              value={selectedDate}
+              onChange={(event, date) => {
+                setShow(false);
+                if (date) {
+                  setSelectedDate(date);
+                }
+              }}
+              minimumDate={minimumDate}
+            />
+          )}
+        </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -91,5 +96,16 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 24,
+  },
+  dateButton: {
+    backgroundColor: Colors.zinc_700,
+    padding: 10,
+    borderRadius: 10,
+    width: 200,
+    alignItems: 'center',
+  },
+  dateText: {
+    color: Colors.zinc_100,
+    fontSize: 16,
   },
 });
