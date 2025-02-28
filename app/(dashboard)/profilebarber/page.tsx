@@ -30,12 +30,12 @@ export default function ProfileBarber() {
 
   async function handleLogout() {
     try {
-      await AsyncStorage.removeItem('authUserToken');
+      await AsyncStorage.removeItem('authBarberToken');
 
       setBarberData(null);
 
       Alert.alert('Você saiu! Até breve...');
-      router.replace("/");
+      router.replace("/(auth)/signinbarber/page");
     } catch (error) {
       Alert.alert("Erro ao fazer logout:");
     }

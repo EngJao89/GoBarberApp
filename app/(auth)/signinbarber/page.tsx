@@ -41,7 +41,7 @@ export default function SignInBarber() {
     const checkToken = async () => {
       const token = await AsyncStorage.getItem('authBarberToken');
       if (token) {
-        router.replace('/(dashboard)/userlist/page');
+        router.replace('/(dashboard)/barberlist/page');
       }
     };
     checkToken();
@@ -59,7 +59,7 @@ export default function SignInBarber() {
       if (response.data.accessToken) {
         await AsyncStorage.setItem('authBarberToken', response.data.accessToken);
         Alert.alert(`Usuário Logado: ${data.email}, Seja Bem vindo!`);
-        router.push("/(dashboard)/userlist/page");
+        router.push("/(dashboard)/barberlist/page");
       } else {
         Alert.alert('Token não encontrado na resposta.');
       }
@@ -97,6 +97,7 @@ export default function SignInBarber() {
             <TextInput 
               placeholder='Senha' 
               placeholderTextColor={Colors.zinc_500} 
+              secureTextEntry
               onChangeText={(text) => setValue('password', text)} 
               value={watch("password")} 
               style={styles.input}
