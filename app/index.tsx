@@ -54,7 +54,7 @@ export default function Index() {
         return;
       }
 
-      const response = await api.post('auth/login', data, { withCredentials: true });
+      const response = await api.post('auth-user/login', data, { withCredentials: true });
 
       if (response.data.accessToken) {
         await AsyncStorage.setItem('authUserToken', response.data.accessToken);
@@ -110,11 +110,15 @@ export default function Index() {
           </View>
 
 
-          <TouchableOpacity onPress={() => router.push('/(dashboard)/userlist/page')} style={styles.button}>
+          <TouchableOpacity 
+            activeOpacity={0.5} 
+            onPress={handleSubmit(onSubmit)} 
+            style={styles.button}
+          >
             <Text>Entrar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgot}>
+          <TouchableOpacity activeOpacity={0.5} style={styles.forgot}>
             <Text style={styles.textGhost}>Esqueci minha senha</Text>
           </TouchableOpacity>
         </View>

@@ -1,11 +1,73 @@
-import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { 
+  Alert, 
+  Image, 
+  Pressable, 
+  SafeAreaView, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { z } from "zod";
 
+import api from "@/lib/axios";
 import logo from "../../../assets/images/logo.png";
 import { Colors } from "@/constants/Colors";
+import { useEffect } from "react";
+
+const loginSchema = z.object({
+  email: z.string().email("E-mail é obrigatório"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+});
+
+export type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function SignInBarber() {
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('authBarberToken');
+      if (token) {
+        router.replace('/(dashboard)/userlist/page');
+      }
+    };
+    checkToken();
+  }, []);
+
+  const onSubmit = async (data: LoginSchema) => {
+    try {
+      if (!data.email || !data.password) {
+        Alert.alert('Por favor, forneça o e-mail e a senha.');
+        return;
+      }
+
+      const response = await api.post('auth-barber/login', data, { withCredentials: true });
+
+      if (response.data.accessToken) {
+        await AsyncStorage.setItem('authBarberToken', response.data.accessToken);
+        Alert.alert(`Usuário Logado: ${data.email}, Seja Bem vindo!`);
+        router.push("/(dashboard)/userlist/page");
+      } else {
+        Alert.alert('Token não encontrado na resposta.');
+      }
+    } catch (error) {
+      Alert.alert('Login falhou. Verifique suas credenciais.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -22,8 +84,10 @@ export default function SignInBarber() {
             <Ionicons name="mail-outline" size={16} style={styles.icon}/>
             <TextInput 
               placeholder='E-mail' 
-              placeholderTextColor={Colors.zinc_500}  
-              style={styles.input}
+              placeholderTextColor={Colors.zinc_500} 
+              onChangeText={(text) => setValue('email', text)} 
+              value={watch("email")}  
+              style={styles.input} 
             />
           </View>
           
@@ -33,15 +97,21 @@ export default function SignInBarber() {
             <TextInput 
               placeholder='Senha' 
               placeholderTextColor={Colors.zinc_500} 
+              onChangeText={(text) => setValue('password', text)} 
+              value={watch("password")} 
               style={styles.input}
             />
           </View>
 
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity 
+            activeOpacity={0.5} 
+            onPress={handleSubmit(onSubmit)} 
+            style={styles.button}
+          >
             <Text>Entrar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgot}>
+          <TouchableOpacity activeOpacity={0.5} style={styles.forgot}>
             <Text style={styles.textGhost}>Esqueci minha senha</Text>
           </TouchableOpacity>
         </View>
