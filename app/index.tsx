@@ -121,6 +121,13 @@ export default function Index() {
           <TouchableOpacity activeOpacity={0.5} style={styles.forgot}>
             <Text style={styles.textGhost}>Esqueci minha senha</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push('/(auth)/signinbarber/page')} style={styles.forgot}>
+            <Ionicons name="enter-outline" size={16} style={styles.forgotIcon}/>
+            <Text style={styles.textForgot}>
+              Ir para área de barbeiros
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -230,5 +237,13 @@ const styles = StyleSheet.create({
     color: Colors.red_600,
     fontSize: 12,
     marginTop: 4,
-  }
+  },
+  forgotIcon: {
+    color: Colors.zinc_50,
+    marginRight: 8,
+  },
+  textForgot: {
+    color: Colors.zinc_50,
+    fontWeight: "bold",
+  },
 });
