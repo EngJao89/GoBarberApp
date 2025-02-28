@@ -17,6 +17,7 @@ export default function RootLayout() {
 
         <Stack.Screen name="(dashboard)/userlist/page" options={{headerShown: false}}/>
         <Stack.Screen name="(dashboard)/profileuser/page" options={{headerShown: false}}/>
+        <Stack.Screen name="(dashboard)/profilebarber/page" options={{headerShown: false}}/>
 
         <Stack.Screen name="(appointment)/new/page" options={{headerShown: false}}/>
       </Stack>
