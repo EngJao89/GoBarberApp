@@ -1,4 +1,4 @@
-import { Image, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -48,6 +48,94 @@ export default function Appointment() {
               minimumDate={minimumDate}
             />
           )}
+        </View>
+        <View style={styles.schedule}>
+          <View style={styles.section}>
+            <Text style={styles.title}>Escolha o Horário</Text>
+
+            <View style={styles.sectionLabel}>
+              <Text style={styles.labelText}>
+                Manhã
+              </Text>
+            </View>
+
+            <ScrollView 
+              contentContainerStyle={{paddingHorizontal: 24}}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>09:00</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>11:30</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>12:00</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <View style={styles.sectionLabel}>
+              <Text style={styles.labelText}>
+                Tarde
+              </Text>
+            </View>
+
+            <ScrollView 
+              contentContainerStyle={{paddingHorizontal: 24}}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>12:00</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>13:30</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>14:00</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>15:00</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>17:30</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <View style={styles.sectionLabel}>
+              <Text style={styles.labelText}>
+                Noite
+              </Text>
+            </View>
+
+            <ScrollView 
+              contentContainerStyle={{paddingHorizontal: 24}}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>19:00</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sectionButton}>
+                <Text style={styles.buttonText}>19:30</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <TouchableOpacity activeOpacity={0.5} style={styles.scheduleButton}>
+              <Text>Agendar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -108,5 +196,41 @@ const styles = StyleSheet.create({
   dateText: {
     color: Colors.zinc_100,
     fontSize: 16,
+  },
+  schedule: {
+    paddingTop: 52,
+    paddingBottom: 24,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionLabel: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginTop: 16,
+    marginBottom: 10,
+  },
+  labelText: {
+    color: Colors.zinc_400,
+  },
+  sectionButton: {
+    backgroundColor: Colors.zinc_700,
+    padding: 12,
+    marginRight: 8,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: Colors.zinc_100,
+  },
+  scheduleButton: {
+    backgroundColor: Colors.orange_600,
+    marginTop: 72,
+    marginBottom: 8,
+    paddingTop: 14,
+    paddingBottom: 14,
+    borderRadius: 8,
+    alignItems: "center",
   },
 });
