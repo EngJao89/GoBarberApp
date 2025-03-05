@@ -21,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="(dashboard)/profilebarber/page" options={{headerShown: false}}/>
 
         <Stack.Screen name="(appointment)/new/page" options={{headerShown: false}}/>
+        <Stack.Screen name="(appointment)/successschedule/page" options={{headerShown: false}}/>
       </Stack>
 
       <StatusBar style="light" />
