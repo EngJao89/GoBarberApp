@@ -1,4 +1,13 @@
-import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { 
+  Image, 
+  Platform, 
+  SafeAreaView, 
+  ScrollView, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -24,6 +33,29 @@ export default function Appointment() {
       </View>
 
       <View style={styles.container}>
+        <View style={styles.containerProvider}>
+          <ScrollView 
+            contentContainerStyle={{paddingHorizontal: 24}}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
+              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
+              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
+              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
+              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
+              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
+              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
         <View style={styles.dateContainer}>
           <Text style={styles.title}>Escolha a data</Text>
 
@@ -167,6 +199,33 @@ const styles = StyleSheet.create({
     color: Colors.zinc_100,
     fontSize: 28,
     fontWeight: 'bold',
+  },
+  containerProvider: {
+    marginBottom: 16,
+  },
+  providerButton: {
+    marginTop: 8,
+    marginBottom: 8,
+    marginRight: 16,
+    paddingTop: 14,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingBottom: 14,
+    borderRadius: 10,
+
+    backgroundColor: Colors.zinc_700,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  providerAvatar: {
+    height: 32,
+    width: 32,
+    borderRadius: 16,
+  },
+  providerTitle: {
+    color: Colors.zinc_100,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   dateContainer: {
     justifyContent: 'center',
