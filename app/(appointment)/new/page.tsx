@@ -1,13 +1,4 @@
-import { 
-  Image, 
-  Platform, 
-  SafeAreaView, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View 
-} from "react-native";
+import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -33,29 +24,6 @@ export default function Appointment() {
       </View>
 
       <View style={styles.container}>
-        <View style={styles.containerProvider}>
-          <ScrollView 
-            contentContainerStyle={{paddingHorizontal: 24}}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-          >
-            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
-              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
-              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
-              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
-              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity activeOpacity={0.5} style={styles.providerButton}>
-              <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.providerAvatar}/>
-              <Text style={styles.providerTitle}>Rafaela Barbosa</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-
         <View style={styles.dateContainer}>
           <Text style={styles.title}>Escolha a data</Text>
 
@@ -164,7 +132,11 @@ export default function Appointment() {
               </TouchableOpacity>
             </ScrollView>
 
-            <TouchableOpacity activeOpacity={0.5} style={styles.scheduleButton}>
+            <TouchableOpacity 
+              activeOpacity={0.5} 
+              onPress={() => router.push('/(appointment)/successschedule/page')} 
+              style={styles.scheduleButton}
+            >
               <Text>Agendar</Text>
             </TouchableOpacity>
           </View>
