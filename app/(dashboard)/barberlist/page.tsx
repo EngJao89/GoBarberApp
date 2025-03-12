@@ -12,6 +12,7 @@ import { router } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 import { Card } from "@/components/Card";
+import { CardBarber } from "@/components/CardBarber";
 
 export default function BarberList() {
   return (
@@ -21,25 +22,25 @@ export default function BarberList() {
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
           <TouchableOpacity onPress={() => router.push('/(dashboard)/profilebarber/page')}>
-            <Text style={styles.nameTitle}>João Ricardo</Text>
+            <Text style={styles.nameTitle}>Rafaela R Barbosa</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity onPress={() => router.push('/(dashboard)/profilebarber/page')}>
-          <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
+          <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.profile}/>
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
-        <Text style={styles.listTitle}>Agendamentos</Text>
+        <Text style={styles.listTitle}>Agenda de Trabalho</Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
+          <CardBarber />
+          <CardBarber />
+          <CardBarber />
+          <CardBarber />
+          <CardBarber />
+          <CardBarber />
+          <CardBarber />
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 36,
+    marginLeft: 24,
   },
   profile: {
     width: 56,
