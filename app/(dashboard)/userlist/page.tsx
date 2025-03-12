@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 36,
+    marginLeft: 24,
   },
   profile: {
     width: 56,
