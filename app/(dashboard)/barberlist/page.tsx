@@ -28,19 +28,27 @@ interface BarberData {
 interface BarberAvailabilityData {
   id: string;
   barberId: string;
-  dayAt: Date;
+  dayAt: Date | string;
   startTime: string;
   endTime: string;
 }
 
 export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData>();
-  const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]); // Alterado para array
+  const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
 
   const fetchBarberAvailability = useCallback(async () => {
     try {
       const response = await api.get<BarberAvailabilityData[]>('barber-availability');
-      setBarberAvailability(response.data); // Agora é um array
+
+      const dataWithDates = response.data.map(item => ({
+        ...item,
+        dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
+      }));
+
+      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+
+      setBarberAvailability(sortedData);
     } catch (error: any) {
       Alert.alert("Erro ao carregar os casos.");
     }
