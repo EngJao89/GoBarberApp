@@ -109,9 +109,12 @@ export default function BarberList() {
         <Text style={styles.listTitle}>Agenda de Trabalho</Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {barberAvailability.map((availability) => (
+        {barberAvailability
+          .filter((availability) => availability.barberId === barberData?.id)
+          .map((availability) => (
             <CardBarber key={availability.id} barberScheduling={availability} />
-          ))}
+          ))
+        }
         </ScrollView>
       </View>
     </SafeAreaView>
