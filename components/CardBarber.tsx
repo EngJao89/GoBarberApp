@@ -3,26 +3,52 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Colors } from "@/constants/Colors";
 
-export function CardBarber() {
+interface BarberSchedulingData {
+  id: string;
+  barberId: string;
+  dayAt: Date | string;
+  startTime: string;
+  endTime: string;
+}
+
+interface CardProps {
+  barberScheduling: BarberSchedulingData;
+}
+
+export function CardBarber({ barberScheduling }: CardProps) {
+  const dayAtDate = typeof barberScheduling.dayAt === 'string' 
+    ? new Date(barberScheduling.dayAt) 
+    : barberScheduling.dayAt;
+
+  const formattedDate = dayAtDate.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
   return (
     <Pressable style={styles.container}>
-      <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar}/>
+      <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar} />
 
       <View>
-        <Text style={styles.nameTitle}>Dia de trabalho</Text>
+        <View style={styles.weekTime}>
+          <Ionicons name="calendar-outline" size={20} color={Colors.orange_700} />
+          <Text style={styles.nameTitle}>{formattedDate}</Text>
+        </View>
+        
 
         <View style={styles.weekTime}>
-          <Ionicons name="calendar-outline" size={14} color={Colors.orange_700}/>
-          <Text style={styles.nameDetails}>Segunda</Text>
+          <Ionicons name="time-outline" size={14} color={Colors.orange_700} />
+          <Text style={styles.nameDetails}>{barberScheduling.startTime}</Text>
         </View>
 
         <View style={styles.weekTime}>
-          <Ionicons name="time-outline" size={14} color={Colors.orange_700}/>
-          <Text style={styles.nameDetails}>09:00h às 20:00h</Text>
+          <Ionicons name="time-outline" size={14} color={Colors.orange_700} />
+          <Text style={styles.nameDetails}>{barberScheduling.endTime}</Text>
         </View>
       </View>
     </Pressable>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -57,4 +83,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 8,
   },
-})
+});
