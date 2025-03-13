@@ -34,7 +34,7 @@ interface BarberAvailabilityData {
 }
 
 export default function BarberList() {
-  const [barberData, setBarberData] = useState<BarberData>();
+  const [barberData, setBarberData] = useState<BarberData | null>(null);
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
 
   const fetchBarberAvailability = useCallback(async () => {
@@ -56,11 +56,30 @@ export default function BarberList() {
 
   useEffect(() => {
     async function fetchBarberData() {
-      const storedData = await AsyncStorage.getItem('authBarberToken');
-      if (storedData) {
-        setBarberData(JSON.parse(storedData));
+      try {
+        const storedData = await AsyncStorage.getItem('authBarberToken');
+
+        if (storedData) {
+          const response = await api.post(
+            'auth-barber/me',
+            {},
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${storedData}`,
+              },
+            }
+          );
+
+          setBarberData(response.data);
+        } else {
+          Alert.alert("Nenhum token encontrado. Tente Novamente");
+        }
+      } catch (error) {
+        Alert.alert("Erro", "Não foi possível carregar os dados do barbeiro.");
       }
     }
+  
     fetchBarberData();
     fetchBarberAvailability();
   }, []);
@@ -78,7 +97,7 @@ export default function BarberList() {
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
           <TouchableOpacity onPress={() => router.push('/(dashboard)/profilebarber/page')}>
-            <Text style={styles.nameTitle}>Rafaela R Barbosa</Text>
+            <Text style={styles.nameTitle}>{barberData ? barberData.name : "Carregando..."}</Text>
           </TouchableOpacity>
         </View>
 
