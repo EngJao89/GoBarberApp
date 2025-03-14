@@ -3,32 +3,61 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
-export function CardUser() {
+
+interface SchedulingData {
+  id: string;
+  barberId: string;
+  userId: string
+  dayAt: Date | string;
+  hourAt: string;
+  serviceType: string;
+  status: string;
+}
+
+interface CardProps {
+  scheduling: SchedulingData;
+}
+
+export function CardUser({ scheduling }: CardProps) {
+
+  const dayAtDate = typeof scheduling.dayAt === 'string' 
+    ? new Date(scheduling.dayAt) 
+    : scheduling.dayAt;
+
+  const formattedDate = dayAtDate.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
   return (
     <Pressable onPress={() => router.push('/(appointment)/new/page')} style={styles.container}>
-      <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar}/>
+      <Image 
+        source={{ uri: 'https://github.com/Rafaela3613.png' }} 
+        style={styles.avatar}
+      />
 
       <View>
         <Text style={styles.nameTitle}>Rafaela Rabelo</Text>
 
         <View style={styles.weekTime}>
           <Ionicons name="calendar-outline" size={14} color={Colors.orange_700}/>
-          <Text style={styles.nameDetails}>Segunda á sexta</Text>
+          <Text style={styles.nameDetails}>{formattedDate}</Text>
         </View>
         
         <View style={styles.weekTime}>
           <Ionicons name="time-outline" size={14} color={Colors.orange_700}/>
-          <Text style={styles.nameDetails}>8h às 18h</Text>
+          <Text style={styles.nameDetails}>{scheduling.hourAt}</Text>
         </View>
       </View>
     </Pressable>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.zinc_700,
-    width: 370,
+    width: '90%',
     padding: 16,
     marginLeft: 20,
     marginBottom: 16,
