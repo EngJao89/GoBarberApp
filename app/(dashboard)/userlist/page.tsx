@@ -1,7 +1,16 @@
-import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
+import { 
+  Image, 
+  Platform, 
+  SafeAreaView, 
+  ScrollView, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 
 import { Colors } from "@/constants/Colors";
-import { Card } from "@/components/Card";
+import { CardUser } from "@/components/CardUser";
 import { router } from "expo-router";
 
 export default function UserList() {
@@ -24,13 +33,13 @@ export default function UserList() {
         <Text style={styles.listTitle}>Cabelereiros</Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
+          <CardUser />
+          <CardUser />
+          <CardUser />
+          <CardUser />
+          <CardUser />
+          <CardUser />
+          <CardUser />
         </ScrollView>
       </View>
     </SafeAreaView>
