@@ -3,7 +3,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
-export function Card() {
+export function CardUser() {
   return (
     <Pressable onPress={() => router.push('/(appointment)/new/page')} style={styles.container}>
       <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar}/>
