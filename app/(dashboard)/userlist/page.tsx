@@ -1,4 +1,5 @@
 import { 
+  Alert,
   Image, 
   Platform, 
   SafeAreaView, 
@@ -8,12 +9,104 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect } from "expo-router";
 
+import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
 import { CardUser } from "@/components/CardUser";
-import { router } from "expo-router";
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface SchedulingData {
+  id: string;
+  barberId: string;
+  userId: string
+  dayAt: Date | string;
+  hourAt: string;
+  serviceType: string;
+  status: string;
+}
 
 export default function UserList() {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [schedulingData, setSchedulingData] = useState<SchedulingData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+
+  const fetchScheduling = useCallback(async () => {
+    try {
+      const response = await api.get<SchedulingData[]>('scheduling');
+
+      const dataWithDates = response.data.map(item => ({
+        ...item,
+        dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
+      }));
+
+      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      setSchedulingData(sortedData);
+    } catch (error: any) {
+      Alert.alert("Erro ao carregar os casos.");
+    }
+  }, []);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const storedData = await AsyncStorage.getItem('authUserToken');
+
+        if (storedData) {
+          const response = await api.post(
+            'auth-user/me',
+            {},
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${storedData}`,
+              },
+            }
+          );
+
+          setUserData(response.data);
+        } else {
+          Alert.alert("Nenhum token encontrado. Tente Novamente");
+        }
+      } catch (error) {
+        Alert.alert("Erro", "Não foi possível carregar os dados do barbeiro.");
+      }
+    }
+
+    async function fetchData() {
+      await fetchUserData();
+      await fetchScheduling();
+      setIsLoading(false);
+    }
+
+    fetchData();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchScheduling();
+    }, [])
+  );
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Carregando...</Text>
+      </View>
+    );
+  }
+
+  const filteredData = schedulingData.filter((availability) => availability.userId === userData?.id);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -21,7 +114,7 @@ export default function UserList() {
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
           <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
-            <Text style={styles.nameTitle}>João Ricardo</Text>
+            <Text style={styles.nameTitle}>{userData ? userData.name : "Carregando..."}</Text>
           </TouchableOpacity>
         </View>
 
@@ -33,18 +126,19 @@ export default function UserList() {
         <Text style={styles.listTitle}>Cabelereiros</Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <CardUser />
-          <CardUser />
-          <CardUser />
-          <CardUser />
-          <CardUser />
-          <CardUser />
-          <CardUser />
+          {filteredData.length > 0 ? (
+            filteredData.map((availability) => (
+              <CardUser key={availability.id} scheduling={availability} />
+            ))
+          ) : (
+            <Text style={styles.noDataText}>Nenhum agendamento encontrado.</Text>
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
-  )
+  );
 }
+
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -87,5 +181,21 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 32,
+  },
+  noDataText: {
+    color: Colors.zinc_100,
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.zinc_900,
+  },
+  loadingText: {
+    color: Colors.zinc_100,
+    fontSize: 18,
   },
 });
