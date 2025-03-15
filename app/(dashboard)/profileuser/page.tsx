@@ -1,5 +1,15 @@
+import { 
+  Alert, 
+  Image, 
+  Platform, 
+  SafeAreaView, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 import { useState } from "react";
-import { Alert, Image, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 

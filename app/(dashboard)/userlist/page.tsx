@@ -10,8 +10,9 @@ import {
   View 
 } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
@@ -114,7 +115,13 @@ export default function UserList() {
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
           <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
-            <Text style={styles.nameTitle}>{userData ? userData.name : "Carregando..."}</Text>
+            <Text 
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={styles.nameTitle}
+            >
+              {userData ? userData.name : "Carregando..."}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -123,7 +130,14 @@ export default function UserList() {
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
-        <Text style={styles.listTitle}>Cabelereiros</Text>
+        <View style={styles.navTitle}>
+          <Text style={styles.listTitle}>Cabelereiros</Text>
+
+          <TouchableOpacity onPress={() => router.push("/(appointment)/new/page")}>
+            <Ionicons name="reader-sharp" size={28} style={styles.icon}/>
+          </TouchableOpacity>
+        </View>
+        
 
         <ScrollView showsVerticalScrollIndicator={false}>
           {filteredData.length > 0 ? (
@@ -159,16 +173,25 @@ const styles = StyleSheet.create({
     marginBottom: 36,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   welcomeTitle: {
     color: Colors.zinc_500,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '400',
   },
   nameTitle: {
     color: Colors.orange_600,
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: 'bold',
+    flexShrink: 1,
+    maxWidth: '80%',
+    overflow: 'hidden',
+  },
+  icon: {
+    color: Colors.zinc_400,
+    marginRight: 24,
   },
   listTitle: {
     color: Colors.zinc_100,
@@ -176,6 +199,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 36,
     marginLeft: 24,
+  },
+  navTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   profile: {
     width: 56,
