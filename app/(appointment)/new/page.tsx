@@ -1,5 +1,16 @@
-import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { 
+  Image, 
+  Platform, 
+  SafeAreaView, 
+  ScrollView, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View 
+} from "react-native";
 import { useState } from "react";
+import { useForm, Controller } from 'react-hook-form';
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -7,9 +18,19 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from "@/constants/Colors";
 
 export default function Appointment() {
+  const { control, handleSubmit, setValue } = useForm();
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [show, setShow] = useState(false);
   const minimumDate = new Date(2020, 0, 1);
+
+  const morningHours = ['09:00', '10:00', '11:00', '12:00'];
+  const afternoonHours = ['13:00', '14:00', '15:00', '16:00', '17:00'];
+  const eveningHours = ['18:00', '19:00', '20:00'];
+
+  const onSubmit = (data: Record<string, any>) => { 
+    console.log(data);
+    router.push('/(appointment)/successschedule/page');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -27,122 +48,145 @@ export default function Appointment() {
         <View style={styles.dateContainer}>
           <Text style={styles.title}>Escolha a data</Text>
 
-          <TouchableOpacity activeOpacity={0.5} onPress={() => setShow(true)} style={styles.dateButton}>
-            <Text style={styles.dateText}>
-              {selectedDate.toLocaleDateString('pt-BR')}
-            </Text>
-          </TouchableOpacity>
+          <Controller
+            control={control}
+            name="date"
+            defaultValue={new Date()}
+            render={({ field: { value } }) => (
+              <TouchableOpacity activeOpacity={0.5} onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
+                <Text style={styles.dateText}>
+                  {value.toLocaleDateString('pt-BR')}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
 
-          {show && (
+          {showDatePicker && (
             <DateTimePicker
               mode="date"
               is24Hour={true}
               display={Platform.OS === 'android' ? 'calendar' : 'spinner'}
               value={selectedDate}
               onChange={(event, date) => {
-                setShow(false);
+                setShowDatePicker(false);
                 if (date) {
                   setSelectedDate(date);
+                  setValue('date', date); 
                 }
               }}
               minimumDate={minimumDate}
             />
           )}
         </View>
+
         <View style={styles.schedule}>
           <View style={styles.section}>
             <Text style={styles.title}>Escolha o Horário</Text>
 
             <View style={styles.sectionLabel}>
-              <Text style={styles.labelText}>
-                Manhã
-              </Text>
+              <Text style={styles.labelText}>Manhã</Text>
             </View>
-
             <ScrollView 
-              contentContainerStyle={{paddingHorizontal: 24}}
+              contentContainerStyle={{ paddingHorizontal: 24 }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>09:00</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>11:30</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>12:00</Text>
-              </TouchableOpacity>
+              <Controller
+                control={control}
+                name="time"
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <>
+                    {morningHours.map((time, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        onPress={() => onChange(time)}
+                      >
+                        <Text style={styles.buttonText}>{time}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+              />
             </ScrollView>
 
             <View style={styles.sectionLabel}>
-              <Text style={styles.labelText}>
-                Tarde
-              </Text>
+              <Text style={styles.labelText}>Tarde</Text>
             </View>
-
             <ScrollView 
-              contentContainerStyle={{paddingHorizontal: 24}}
+              contentContainerStyle={{ paddingHorizontal: 24 }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>12:00</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>13:30</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>14:00</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>15:00</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>17:30</Text>
-              </TouchableOpacity>
+              <Controller
+                control={control}
+                name="time"
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <>
+                    {afternoonHours.map((time, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        onPress={() => onChange(time)}
+                      >
+                        <Text style={styles.buttonText}>{time}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+              />
             </ScrollView>
 
             <View style={styles.sectionLabel}>
-              <Text style={styles.labelText}>
-                Noite
-              </Text>
+              <Text style={styles.labelText}>Noite</Text>
             </View>
-
             <ScrollView 
-              contentContainerStyle={{paddingHorizontal: 24}}
+              contentContainerStyle={{ paddingHorizontal: 24 }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>19:00</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sectionButton}>
-                <Text style={styles.buttonText}>19:30</Text>
-              </TouchableOpacity>
+              <Controller
+                control={control}
+                name="time"
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <>
+                    {eveningHours.map((time, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        onPress={() => onChange(time)}
+                      >
+                        <Text style={styles.buttonText}>{time}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+              />
             </ScrollView>
 
             <View style={styles.inputContainer}>
-              <TextInput 
-                placeholder='Qual serviço deseja?' 
-                placeholderTextColor={Colors.zinc_500} 
-                style={styles.input}
+              <Controller
+                control={control}
+                name="service"
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <TextInput 
+                    placeholder='Qual serviço deseja?' 
+                    placeholderTextColor={Colors.zinc_500} 
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
               />
             </View>
 
             <TouchableOpacity 
               activeOpacity={0.5} 
-              onPress={() => router.push('/(appointment)/successschedule/page')} 
+              onPress={handleSubmit(onSubmit)} 
               style={styles.scheduleButton}
             >
               <Text>Agendar</Text>
@@ -179,33 +223,6 @@ const styles = StyleSheet.create({
     color: Colors.zinc_100,
     fontSize: 28,
     fontWeight: 'bold',
-  },
-  containerProvider: {
-    marginBottom: 16,
-  },
-  providerButton: {
-    marginTop: 8,
-    marginBottom: 8,
-    marginRight: 16,
-    paddingTop: 14,
-    paddingLeft: 14,
-    paddingRight: 14,
-    paddingBottom: 14,
-    borderRadius: 10,
-
-    backgroundColor: Colors.zinc_700,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  providerAvatar: {
-    height: 32,
-    width: 32,
-    borderRadius: 16,
-  },
-  providerTitle: {
-    color: Colors.zinc_100,
-    fontWeight: 'bold',
-    marginLeft: 8,
   },
   dateContainer: {
     justifyContent: 'center',
@@ -278,6 +295,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.zinc_100,
+  },
+  selectedButton: {
+    backgroundColor: Colors.orange_600, 
   },
   scheduleButton: {
     backgroundColor: Colors.orange_600,
