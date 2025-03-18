@@ -1,4 +1,5 @@
 import { 
+  Alert,
   Image, 
   Platform, 
   SafeAreaView, 
@@ -16,6 +17,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Colors } from "@/constants/Colors";
+import api from "@/lib/axios";
 
 export default function Appointment() {
   const { control, handleSubmit, setValue } = useForm();
@@ -27,9 +29,38 @@ export default function Appointment() {
   const afternoonHours = ['13:00', '14:00', '15:00', '16:00', '17:00'];
   const eveningHours = ['18:00', '19:00', '20:00'];
 
-  const onSubmit = (data: Record<string, any>) => { 
-    console.log(data);
-    router.push('/(appointment)/successschedule/page');
+  const userId = "11838564-fe2f-48c2-8b03-dce0890b3a19";
+  const barberId = "2c20c8ad-2b7c-4d7d-b0e5-381aad973d52";
+
+  const onSubmit = async (data: Record<string, any>) => {
+    try {
+      const [hours, minutes] = data.time.split(':');
+      const dayAt = new Date(data.date);
+      dayAt.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const schedulingData = {
+        userId,
+        barberId,
+        dayAt: dayAt.toISOString(),
+        hourAt: data.time,
+        serviceType: data.service,
+        status: "pendente",
+      };
+
+      const response = await api.post('scheduling/', schedulingData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.data) {
+        router.push('/(appointment)/successschedule/page');
+      } else {
+        Alert.alert('Erro', 'Não foi possível agendar. Tente novamente.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Ocorreu um erro ao tentar agendar.');
+    }
   };
 
   return (
@@ -71,7 +102,7 @@ export default function Appointment() {
                 setShowDatePicker(false);
                 if (date) {
                   setSelectedDate(date);
-                  setValue('date', date); 
+                  setValue('date', date);
                 }
               }}
               minimumDate={minimumDate}
