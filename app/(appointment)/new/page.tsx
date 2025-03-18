@@ -10,8 +10,11 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
-import { useState } from "react";
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import axios from 'axios';
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -19,10 +22,51 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from "@/constants/Colors";
 import api from "@/lib/axios";
 
+interface Barber {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  barbershop: string;
+}
+
+interface Scheduling {
+  id: string;
+  userId: string;
+  barberId: string;
+  dayAt: string;
+  hourAt: string;
+  serviceType: string;
+  status: string;
+}
+
+interface FormData {
+  barberId: string;
+  dayAt: Date;
+  hourAt: string;
+  serviceType: string;
+}
+
+const registerSchema = z.object({
+  dayAt: z.string().min(3, "Nome de usuário é obrigatório"),
+  hourAt: z.string().email("E-mail é obrigatório"),
+  serviceType: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  phone: z.string().min(13, "O telefone deve ter pelo menos 13 caracteres"),
+  barbershop: z.string().min(6,"Barbearia é obrigatório"), 
+});
+
 export default function Appointment() {
-  const { control, handleSubmit, setValue } = useForm();
+  const { control, handleSubmit, setValue } = useForm<FormData>({
+    defaultValues: {
+      barberId: "",
+      dayAt: new Date(),
+      hourAt: "",
+      serviceType: "",
+    },
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [barbers, setBarbers] = useState<Barber[]>([]);
   const minimumDate = new Date(2020, 0, 1);
 
   const morningHours = ['09:00', '10:00', '11:00', '12:00'];
@@ -30,24 +74,38 @@ export default function Appointment() {
   const eveningHours = ['18:00', '19:00', '20:00'];
 
   const userId = "11838564-fe2f-48c2-8b03-dce0890b3a19";
-  const barberId = "2c20c8ad-2b7c-4d7d-b0e5-381aad973d52";
 
-  const onSubmit = async (data: Record<string, any>) => {
+  const fetchBarbers = async () => {
     try {
-      const [hours, minutes] = data.time.split(':');
-      const dayAt = new Date(data.date);
+      const response = await api.get('barbers/');
+      setBarbers(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar barbeiros:', error);
+      Alert.alert('Erro', 'Não foi possível carregar a lista de barbeiros.');
+    }
+  };
+
+  useEffect(() => {
+    fetchBarbers();
+  }, []);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const [hours, minutes] = data.hourAt.split(':');
+      const dayAt = new Date(data.dayAt);
       dayAt.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      const schedulingData = {
+      const schedulingData: Scheduling = {
+        id: "",
         userId,
-        barberId,
+        barberId: data.barberId,
         dayAt: dayAt.toISOString(),
-        hourAt: data.time,
-        serviceType: data.service,
+        hourAt: data.hourAt,
+        serviceType: data.serviceType,
         status: "pendente",
       };
 
-      const response = await api.post('scheduling/', schedulingData, {
+      const response = await api.post<Scheduling>('scheduling/', schedulingData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -82,20 +140,16 @@ export default function Appointment() {
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           >
-            <TouchableOpacity style={styles.barberButton}>
-              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
-              <Text style={styles.barberText}>Rafaela Barbosa</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.barberButton}>
-              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
-              <Text style={styles.barberText}>Miguel Barbosa</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.barberButton}>
-              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
-              <Text style={styles.barberText}>Miguel Barbosa</Text>
-            </TouchableOpacity>
+            {barbers.map((barber) => (
+              <TouchableOpacity 
+                key={barber.id}
+                style={styles.barberButton}
+                onPress={() => setValue('barberId', barber.id)}
+              >
+                <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
+                <Text style={styles.barberText}>{barber.name}</Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
 
@@ -104,8 +158,7 @@ export default function Appointment() {
 
           <Controller
             control={control}
-            name="date"
-            defaultValue={new Date()}
+            name="dayAt"
             render={({ field: { value } }) => (
               <TouchableOpacity activeOpacity={0.5} onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
                 <Text style={styles.dateText}>
@@ -125,7 +178,7 @@ export default function Appointment() {
                 setShowDatePicker(false);
                 if (date) {
                   setSelectedDate(date);
-                  setValue('date', date);
+                  setValue('dayAt', date);
                 }
               }}
               minimumDate={minimumDate}
@@ -147,8 +200,7 @@ export default function Appointment() {
             >
               <Controller
                 control={control}
-                name="time"
-                defaultValue=""
+                name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
                     {morningHours.map((time, index) => (
@@ -175,8 +227,7 @@ export default function Appointment() {
             >
               <Controller
                 control={control}
-                name="time"
-                defaultValue=""
+                name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
                     {afternoonHours.map((time, index) => (
@@ -203,8 +254,7 @@ export default function Appointment() {
             >
               <Controller
                 control={control}
-                name="time"
-                defaultValue=""
+                name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
                     {eveningHours.map((time, index) => (
@@ -224,8 +274,7 @@ export default function Appointment() {
             <View style={styles.inputContainer}>
               <Controller
                 control={control}
-                name="service"
-                defaultValue=""
+                name="serviceType"
                 render={({ field: { onChange, value } }) => (
                   <TextInput 
                     placeholder='Qual serviço deseja?' 
@@ -252,6 +301,7 @@ export default function Appointment() {
   );
 }
 
+// Estilos (mantidos iguais)
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
