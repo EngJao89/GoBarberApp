@@ -76,6 +76,29 @@ export default function Appointment() {
       </View>
 
       <View style={styles.container}>
+        <View>
+          <ScrollView 
+            contentContainerStyle={{ paddingHorizontal: 24 }}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            <TouchableOpacity style={styles.barberButton}>
+              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
+              <Text style={styles.barberText}>Rafaela Barbosa</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.barberButton}>
+              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
+              <Text style={styles.barberText}>Miguel Barbosa</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.barberButton}>
+              <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
+              <Text style={styles.barberText}>Miguel Barbosa</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
         <View style={styles.dateContainer}>
           <Text style={styles.title}>Escolha a data</Text>
 
@@ -255,9 +278,30 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
   },
+  barberButton: {
+    backgroundColor: Colors.zinc_700,
+    padding: 12,
+    marginRight: 8,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  barberFoto: {
+    width: 36,
+    height: 36,
+    borderRadius: 32,
+    marginRight: 12,
+  },
+  barberText: {
+    color: Colors.zinc_100,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   dateContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 16,
   },
   icon: {
     color: Colors.zinc_400,
@@ -332,7 +376,7 @@ const styles = StyleSheet.create({
   },
   scheduleButton: {
     backgroundColor: Colors.orange_600,
-    marginTop: 72,
+    marginTop: 44,
     marginBottom: 8,
     paddingTop: 14,
     paddingBottom: 14,
