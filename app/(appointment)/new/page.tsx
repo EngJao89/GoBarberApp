@@ -1,4 +1,4 @@
-import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -132,6 +132,14 @@ export default function Appointment() {
               </TouchableOpacity>
             </ScrollView>
 
+            <View style={styles.inputContainer}>
+              <TextInput 
+                placeholder='Qual serviço deseja?' 
+                placeholderTextColor={Colors.zinc_500} 
+                style={styles.input}
+              />
+            </View>
+
             <TouchableOpacity 
               activeOpacity={0.5} 
               onPress={() => router.push('/(appointment)/successschedule/page')} 
@@ -205,6 +213,22 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: Colors.zinc_400,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.zinc_950,
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: Colors.zinc_100,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginTop: 24,
+    marginBottom: 4,
+  },
+  input: {
+    flex: 1,
+    color: Colors.zinc_50,
   },
   profile: {
     width: 56,
