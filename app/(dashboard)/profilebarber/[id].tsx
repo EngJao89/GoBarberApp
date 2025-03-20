@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Alert, 
   Image, 
@@ -10,23 +10,76 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
-import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { Colors } from "@/constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "@/lib/axios";
 
 interface BarberData {
   id: string;
   name: string;
   email: string;
   phone: string;
-  accessToken: string;
   barbershop: string;
 }
 
-export default function ProfileBarber() {
+const registerSchema = z.object({
+  name: z.string().min(3, "Nome é obrigatório"),
+  email: z.string().email("E-mail é obrigatório"),
+  phone: z.string().min(13, "O whatsapp deve ter pelo menos 13 caracteres"),
+  barbershop: z.string().min(8, "Insira um valor válido"),
+});
+
+export type RegisterSchema = z.infer<typeof registerSchema>;
+
+interface EditProfileProps {
+  onSubmit: (data: RegisterSchema) => Promise<void>;
+}
+
+export default function ProfileBarber({ onSubmit }: EditProfileProps) {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useLocalSearchParams();
+  const barberId = Array.isArray(id) ? id[0] : id;
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      barbershop: "",
+    },
+  });
+
+  useEffect(() => {
+    const fetchIncident = async () => {
+      try {
+        const response = await api.get(`barbers/${barberId}`);
+        reset(response.data);
+      } catch (error) {
+        Alert.alert("Erro ao carregar os dados do incidente");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIncident();
+  }, [id, reset]);
+
+  const handleSave = async (data: RegisterSchema) => {
+    try {
+      await api.put(`barbers/${barberId}`, data);
+      Alert.alert("Caso atualizado com sucesso!");
+      router.back();
+    } catch (error) {
+      Alert.alert("Erro ao atualizar o caso");
+    }
+  };
 
   async function handleLogout() {
     try {
@@ -61,23 +114,36 @@ export default function ProfileBarber() {
         
         <View style={styles.form}>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={16} style={styles.iconInput}/>
-            <TextInput 
-              placeholder='Nome' 
-              placeholderTextColor={Colors.zinc_500} 
-              style={styles.input}
-            />
-          </View>
+          <Controller 
+            control={control} 
+            name="name" 
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={16} style={styles.iconInput}/>
+                <TextInput 
+                  placeholder='Nome' 
+                  placeholderTextColor={Colors.zinc_500} 
+                  style={styles.input}
+                />
+              </View>
+            )}
+          />
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={16} style={styles.iconInput}/>
-            <TextInput 
-              placeholder='E-mail' 
-              placeholderTextColor={Colors.zinc_500} 
-              style={styles.input}
-            />
-          </View>
+          <Controller 
+            control={control} 
+            name="email" 
+            render={({field: { onChange, value }}) => (
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail-outline" size={16} style={styles.iconInput}/>
+                <TextInput 
+                  placeholder='E-mail' 
+                  placeholderTextColor={Colors.zinc_500} 
+                  style={styles.input}
+                />
+              </View>
+            )}
+          />
+
 
           <View style={styles.formContent}>
             <View style={styles.inputContainer}>
