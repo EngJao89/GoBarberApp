@@ -96,13 +96,13 @@ export default function BarberList() {
         <View>
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
-          <TouchableOpacity onPress={() => router.push('/(dashboard)/profilebarber/page')}>
+          <TouchableOpacity onPress={() => router.push(`/(dashboard)/profilebarber/${barberData?.id}`)}>
             <Text style={styles.nameTitle}>{barberData ? barberData.name : "Carregando..."}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity onPress={() => router.push('/(dashboard)/profilebarber/page')}>
-          <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.profile}/>
+          <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
