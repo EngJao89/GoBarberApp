@@ -1,39 +1,38 @@
-import { useEffect, useState } from "react";
 import { 
   Alert, 
   Image, 
   Platform, 
   SafeAreaView, 
-  StyleSheet, 
   ScrollView, 
+  StyleSheet, 
   Text, 
   TextInput, 
   TouchableOpacity, 
   View 
 } from "react-native";
+import { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router, useLocalSearchParams } from "expo-router";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
 
-interface BarberData {
+interface UserData {
   id: string;
   name: string;
   email: string;
   phone: string;
-  barbershop: string;
+  accessToken: string;
 }
 
 const registerSchema = z.object({
   name: z.string().min(3, "Nome é obrigatório"),
   email: z.string().email("E-mail é obrigatório"),
   phone: z.string().min(13, "O whatsapp deve ter pelo menos 13 caracteres"),
-  barbershop: z.string().min(8, "Insira um valor válido"),
   currentPassword: z.string().min(6, "Senha atual é obrigatória"),
   newPassword: z.string().min(6, "Nova senha é obrigatória"),
   confirmPassword: z.string().min(6, "Confirmação de senha é obrigatória"),
@@ -48,18 +47,17 @@ interface EditProfileProps {
   onSubmit: (data: RegisterSchema) => Promise<void>;
 }
 
-export default function ProfileBarber({ onSubmit }: EditProfileProps) {
-  const [barberData, setBarberData] = useState<BarberData | null>(null);
+export default function ProfileUser() {
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const { id } = useLocalSearchParams();
-  const barberId = Array.isArray(id) ? id[0] : id;
+  const userId = Array.isArray(id) ? id[0] : id;
   const { control, handleSubmit, reset, formState: { errors } } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
-      barbershop: "",
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -69,7 +67,7 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
   useEffect(() => {
     const fetchIncident = async () => {
       try {
-        const response = await api.get(`barbers/${barberId}`);
+        const response = await api.get(`users/${userId}`);
         reset(response.data);
       } catch (error) {
         Alert.alert("Erro ao carregar os dados do perfil");
@@ -83,7 +81,7 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
 
   const handleSave = async (data: RegisterSchema) => {
     try {
-      await api.put(`barbers/${barberId}`, data);
+      await api.put(`users/${userId}`, data);
       Alert.alert("Perfil atualizado com sucesso!");
       router.back();
     } catch (error: any) {
@@ -93,12 +91,14 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
 
   async function handleLogout() {
     try {
-      await AsyncStorage.removeItem('authBarberToken');
-      setBarberData(null);
+      await AsyncStorage.removeItem('authUserToken');
+
+      setUserData(null);
+
       Alert.alert('Você saiu! Até breve...');
-      router.replace("/(auth)/signinbarber/page");
-    } catch (error: any) {
-      Alert.alert("Erro ao fazer logout:", error.message);
+      router.replace("/");
+    } catch (error) {
+      Alert.alert("Erro ao fazer logout:");
     }
   }
 
@@ -108,13 +108,15 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back-outline" size={32} style={styles.icon}/>
         </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Meu Perfil</Text>
+
         <TouchableOpacity onPress={() => handleLogout()}>
           <Ionicons name="power-outline" size={32} style={styles.icon}/>
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer} 
         showsVerticalScrollIndicator={false}
       >
@@ -122,7 +124,7 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
           <View style={styles.profileContent}>
             <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
           </View>
-
+          
           <View style={styles.form}>
             <Controller 
               control={control} 
@@ -138,27 +140,8 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
                     onChangeText={onChange}
                   />
                 </View>
-              )}
+              )} 
             />
-            {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
-
-            <Controller 
-              control={control} 
-              name="email" 
-              render={({ field: { onChange, value } }) => (
-                <View style={styles.inputContainer}>
-                  <Ionicons name="mail-outline" size={16} style={styles.iconInput}/>
-                  <TextInput 
-                    placeholder='E-mail' 
-                    placeholderTextColor={Colors.zinc_500} 
-                    style={styles.input}
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                </View>
-              )}
-            />
-            {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
             <Controller 
               control={control} 
@@ -176,27 +159,26 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
                 </View>
               )}
             />
-            {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
 
             <Controller 
               control={control} 
-              name="barbershop" 
+              name="email" 
               render={({ field: { onChange, value } }) => (
                 <View style={styles.inputContainer}>
-                  <Ionicons name="business-outline" size={16} style={styles.iconInput}/>
+                  <Ionicons name="mail-outline" size={16} style={styles.iconInput}/>
                   <TextInput 
-                    placeholder='Barbearia' 
+                    placeholder='E-mail' 
                     placeholderTextColor={Colors.zinc_500} 
                     style={styles.input}
                     value={value}
                     onChangeText={onChange}
                   />
                 </View>
-              )}
+              )} 
             />
-            {errors.barbershop && <Text style={styles.errorText}>{errors.barbershop.message}</Text>}
 
             <View style={styles.formContent}>
+
               <Controller 
                 control={control} 
                 name="currentPassword" 
@@ -207,14 +189,10 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
                       placeholder='Senha atual' 
                       placeholderTextColor={Colors.zinc_500} 
                       style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      secureTextEntry
                     />
                   </View>
-                )}
+                )} 
               />
-              {errors.currentPassword && <Text style={styles.errorText}>{errors.currentPassword.message}</Text>}
 
               <Controller 
                 control={control} 
@@ -226,14 +204,10 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
                       placeholder='Nova senha' 
                       placeholderTextColor={Colors.zinc_500} 
                       style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      secureTextEntry
                     />
                   </View>
                 )}
               />
-              {errors.newPassword && <Text style={styles.errorText}>{errors.newPassword.message}</Text>}
 
               <Controller 
                 control={control} 
@@ -245,28 +219,24 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
                       placeholder='Confirmar senha' 
                       placeholderTextColor={Colors.zinc_500} 
                       style={styles.input}
-                      value={value}
-                      onChangeText={onChange}
-                      secureTextEntry
                     />
                   </View>
                 )}
               />
-              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
-
-              <TouchableOpacity 
-                style={[styles.button, loading && styles.disabledButton]} 
-                onPress={handleSubmit(handleSave)} 
-                disabled={loading}
-              >
-                <Text>{loading ? 'Carregando...' : 'Confirmar mudanças'}</Text>
-              </TouchableOpacity>
             </View>
+
+            <TouchableOpacity 
+              style={[styles.button, loading && styles.disabledButton]}
+              onPress={handleSubmit(handleSave)} 
+              disabled={loading}
+            >
+              <Text>{loading ? 'Carregando...' : 'Confirmar mudanças'}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -307,9 +277,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   form: {
-    marginTop: 24,
+    marginTop: 18,
   },
-  formContent: {
+  formContent:{
     marginTop: 24,
   },
   inputContainer: {
@@ -332,12 +302,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: Colors.orange_600,
-    marginTop: 20,
+    marginTop: 14,
     marginBottom: 24,
     paddingTop: 14,
     paddingBottom: 14,
     borderRadius: 8,
     alignItems: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   disabledButton: {
     backgroundColor: Colors.zinc_500,
@@ -346,9 +320,5 @@ const styles = StyleSheet.create({
     color: Colors.red_600,
     fontSize: 12,
     marginBottom: 8,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    paddingBottom: 20,
   },
 });
