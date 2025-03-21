@@ -114,7 +114,7 @@ export default function UserList() {
         <View>
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
 
-          <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
+          <TouchableOpacity onPress={() => router.push(`/(dashboard)/profileuser/${userData.id}`)}>
             <Text 
               numberOfLines={1}
               ellipsizeMode="tail"
@@ -125,7 +125,7 @@ export default function UserList() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={() => router.push('/(dashboard)/profileuser/page')}>
+        <TouchableOpacity onPress={() => router.push(`/(dashboard)/profileuser/${userData.id}`)}>
           <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
         </TouchableOpacity>
       </View>
