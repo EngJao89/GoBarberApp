@@ -86,7 +86,7 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
       await api.put(`barbers/${barberId}`, data);
       Alert.alert("Perfil atualizado com sucesso!");
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("Erro ao atualizar o perfil", error.message || "Tente novamente mais tarde.");
     }
   };
@@ -97,7 +97,7 @@ export default function ProfileBarber({ onSubmit }: EditProfileProps) {
       setBarberData(null);
       Alert.alert('Você saiu! Até breve...');
       router.replace("/(auth)/signinbarber/page");
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("Erro ao fazer logout:", error.message);
     }
   }
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.zinc_500,
   },
   errorText: {
-    color: Colors.red_500,
+    color: Colors.red_600,
     fontSize: 12,
     marginBottom: 8,
   },
