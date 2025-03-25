@@ -303,7 +303,6 @@ export default function Appointment() {
   );
 }
 
-// Estilos (mantidos iguais)
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
