@@ -57,36 +57,52 @@ export default function UserList() {
     }
   }, []);
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('authUserToken');
+    router.replace('/');
+  };
+
   useEffect(() => {
     async function fetchUserData() {
       try {
         const storedData = await AsyncStorage.getItem('authUserToken');
 
-        if (storedData) {
-          const response = await api.post(
-            'auth-user/me',
-            {},
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${storedData}`,
-              },
-            }
-          );
-
-          setUserData(response.data);
-        } else {
-          Alert.alert("Nenhum token encontrado. Tente Novamente");
+        if (!storedData) {
+          handleLogout();
+          return;
         }
-      } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar os dados do barbeiro.");
+
+        const response = await api.post(
+          'auth-user/me',
+          {},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${storedData}`,
+            },
+          }
+        );
+
+        setUserData(response.data);
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          handleLogout();
+        } else {
+          Alert.alert("Erro", "Não foi possível carregar os dados do usuário.");
+        }
       }
     }
 
     async function fetchData() {
-      await fetchUserData();
-      await fetchScheduling();
-      setIsLoading(false);
+      setIsLoading(true);
+      try {
+        await fetchUserData();
+        await fetchScheduling();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     fetchData();
@@ -104,6 +120,10 @@ export default function UserList() {
         <Text style={styles.loadingText}>Carregando...</Text>
       </View>
     );
+  }
+
+  if (!userData) {
+    return null;
   }
 
   const filteredData = schedulingData.filter((availability) => availability.userId === userData?.id);
