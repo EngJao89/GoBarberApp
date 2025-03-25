@@ -30,6 +30,13 @@ interface Barber {
   barbershop: string;
 }
 
+interface FormData {
+  barberId: string;
+  dayAt: Date;
+  hourAt: string;
+  serviceType: string;
+}
+
 interface Scheduling {
   id: string;
   userId: string;
@@ -40,25 +47,26 @@ interface Scheduling {
   status: string;
 }
 
-interface FormData {
-  barberId: string;
-  dayAt: Date;
-  hourAt: string;
-  serviceType: string;
-}
-
 const registerSchema = z.object({
-  dayAt: z.string().min(3, "Nome de usuário é obrigatório"),
-  hourAt: z.string().email("E-mail é obrigatório"),
-  serviceType: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-  phone: z.string().min(13, "O telefone deve ter pelo menos 13 caracteres"),
-  barbershop: z.string().min(6,"Barbearia é obrigatório"), 
+  barberId: z.string().min(1, "Selecione um barbeiro"),
+  dayAt: z.date({
+    required_error: "Selecione uma data",
+    invalid_type_error: "Data inválida",
+  }),
+  hourAt: z.string().min(1, "Selecione um horário"),
+  serviceType: z.string().min(3, "Descreva o serviço (mín. 3 caracteres)"),
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;
 
 export default function Appointment() {
-  const { control, handleSubmit, setValue } = useForm<FormData>({
+  const { 
+    control, 
+    handleSubmit, 
+    setValue, 
+    formState: { errors } 
+  } = useForm<FormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       barberId: "",
       dayAt: new Date(),
@@ -66,9 +74,11 @@ export default function Appointment() {
       serviceType: "",
     },
   });
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
   const minimumDate = new Date(2020, 0, 1);
 
   const morningHours = ['09:00', '10:00', '11:00', '12:00'];
@@ -82,7 +92,6 @@ export default function Appointment() {
       const response = await api.get('barbers/');
       setBarbers(response.data);
     } catch (error) {
-      console.error('Erro ao buscar barbeiros:', error);
       Alert.alert('Erro', 'Não foi possível carregar a lista de barbeiros.');
     }
   };
@@ -95,10 +104,9 @@ export default function Appointment() {
     try {
       const [hours, minutes] = data.hourAt.split(':');
       const dayAt = new Date(data.dayAt);
-      dayAt.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      dayAt.setHours(parseInt(hours), parseInt(minutes));
 
-      const schedulingData: Scheduling = {
-        id: "",
+      const schedulingData: Omit<Scheduling, 'id'> = {
         userId,
         barberId: data.barberId,
         dayAt: dayAt.toISOString(),
@@ -107,16 +115,10 @@ export default function Appointment() {
         status: "pendente",
       };
 
-      const response = await api.post<Scheduling>('scheduling/', schedulingData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await api.post<Scheduling>('scheduling/', schedulingData);
 
       if (response.data) {
         router.push('/(appointment)/successschedule/page');
-      } else {
-        Alert.alert('Erro', 'Não foi possível agendar. Tente novamente.');
       }
     } catch (error) {
       Alert.alert('Erro', 'Ocorreu um erro ao tentar agendar.');
@@ -145,8 +147,14 @@ export default function Appointment() {
             {barbers.map((barber) => (
               <TouchableOpacity 
                 key={barber.id}
-                style={styles.barberButton}
-                onPress={() => setValue('barberId', barber.id)}
+                style={[
+                  styles.barberButton,
+                  selectedBarber === barber.id && styles.selectedButton
+                ]}
+                onPress={() => {
+                  setValue('barberId', barber.id);
+                  setSelectedBarber(barber.id);
+                }}
               >
                 <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.barberFoto} />
                 <Text style={styles.barberText}>{barber.name}</Text>
