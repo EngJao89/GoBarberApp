@@ -55,6 +55,8 @@ const registerSchema = z.object({
   barbershop: z.string().min(6,"Barbearia é obrigatório"), 
 });
 
+export type RegisterSchema = z.infer<typeof registerSchema>;
+
 export default function Appointment() {
   const { control, handleSubmit, setValue } = useForm<FormData>({
     defaultValues: {
@@ -301,7 +303,6 @@ export default function Appointment() {
   );
 }
 
-// Estilos (mantidos iguais)
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
