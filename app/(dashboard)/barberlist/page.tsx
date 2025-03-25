@@ -54,10 +54,20 @@ export default function BarberList() {
     }
   }, []);
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('authBarberToken');
+    router.replace('/');
+  };
+
   useEffect(() => {
     async function fetchBarberData() {
       try {
         const storedData = await AsyncStorage.getItem('authBarberToken');
+
+        if (!storedData) {
+          handleLogout();
+          return;
+        }
 
         if (storedData) {
           const response = await api.post(
