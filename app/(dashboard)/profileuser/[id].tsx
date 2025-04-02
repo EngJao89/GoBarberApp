@@ -26,6 +26,7 @@ interface UserData {
   name: string;
   email: string;
   phone: string;
+  password: string;
   accessToken: string;
 }
 
@@ -34,9 +35,9 @@ const registerSchema = z.object({
   email: z.string().email("E-mail é obrigatório"),
   phone: z.string().min(13, "O whatsapp deve ter pelo menos 13 caracteres"),
   currentPassword: z.string().min(6, "Senha atual é obrigatória"),
-  newPassword: z.string().min(6, "Nova senha é obrigatória"),
+  password: z.string().min(6, "Nova senha é obrigatória"),
   confirmPassword: z.string().min(6, "Confirmação de senha é obrigatória"),
-}).refine(data => data.newPassword === data.confirmPassword, {
+}).refine(data => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
 });
@@ -59,7 +60,7 @@ export default function ProfileUser() {
       email: "",
       phone: "",
       currentPassword: "",
-      newPassword: "",
+      password: "",
       confirmPassword: "",
     },
   });
@@ -196,7 +197,7 @@ export default function ProfileUser() {
 
               <Controller 
                 control={control} 
-                name="newPassword" 
+                name="password" 
                 render={({ field: { onChange, value } }) => (
                   <View style={styles.inputContainer}>
                     <Ionicons name="lock-closed-outline" size={16} style={styles.iconInput}/>
