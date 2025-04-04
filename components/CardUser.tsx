@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
+import { Loading } from "./Loading";
 
 interface SchedulingData {
   id: string;
@@ -50,7 +51,9 @@ export function CardUser({ scheduling }: CardProps) {
   }, [scheduling.id]);
 
   if (loading) {
-    return <Text>Carregando...</Text>;
+    return (
+      <Loading />
+    )
   }
 
   if (!schedulingData) {
