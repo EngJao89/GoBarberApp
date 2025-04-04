@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
 import { Loading } from "@/components/Loading";
+import { NotFound } from "@/components/NotFound";
 
 interface SchedulingData {
   id: string;
@@ -52,9 +53,7 @@ export default function AppointmentItem() {
 
   if (!scheduling) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <Text style={{ color: Colors.zinc_100 }}>Agendamento não encontrado</Text>
-      </SafeAreaView>
+      <NotFound />
     );
   }
 

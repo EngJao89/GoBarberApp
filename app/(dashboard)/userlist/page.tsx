@@ -18,6 +18,7 @@ import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
 import { CardUser } from "@/components/CardUser";
 import { Loading } from "@/components/Loading";
+import { NotFound } from "@/components/NotFound";
 
 interface UserData {
   id: string;
@@ -121,8 +122,8 @@ export default function UserList() {
     );
   }
 
-  if (!userData) {
-    return null;
+  if (!userData || !schedulingData) {
+    return (<NotFound />);
   }
 
   const filteredData = schedulingData.filter((availability) => availability.userId === userData?.id);
