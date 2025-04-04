@@ -17,6 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "@/lib/axios";
 import { Colors } from "@/constants/Colors";
 import { CardUser } from "@/components/CardUser";
+import { Loading } from "@/components/Loading";
 
 interface UserData {
   id: string;
@@ -116,9 +117,7 @@ export default function UserList() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Carregando...</Text>
-      </View>
+      <Loading />
     );
   }
 
@@ -234,15 +233,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.zinc_900,
-  },
-  loadingText: {
-    color: Colors.zinc_100,
-    fontSize: 18,
   },
 });

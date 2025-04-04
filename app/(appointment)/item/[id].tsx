@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Colors } from "@/constants/Colors";
 import api from "@/lib/axios";
+import { Colors } from "@/constants/Colors";
+import { Loading } from "@/components/Loading";
 
 interface SchedulingData {
   id: string;
@@ -45,9 +46,7 @@ export default function AppointmentItem() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <Text style={{ color: Colors.zinc_100 }}>Carregando...</Text>
-      </SafeAreaView>
+      <Loading />
     );
   }
 
