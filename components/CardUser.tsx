@@ -1,13 +1,15 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
 
 interface SchedulingData {
   id: string;
   barberId: string;
-  userId: string
+  userId: string;
   dayAt: Date | string;
   hourAt: string;
   serviceType: string;
@@ -19,6 +21,8 @@ interface CardProps {
 }
 
 export function CardUser({ scheduling }: CardProps) {
+  const [schedulingData, setSchedulingData] = useState<SchedulingData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const dayAtDate = typeof scheduling.dayAt === 'string' 
     ? new Date(scheduling.dayAt) 
@@ -30,8 +34,35 @@ export function CardUser({ scheduling }: CardProps) {
     year: 'numeric',
   });
 
+  useEffect(() => {
+    const fetchSchedulingDetails = async () => {
+      try {
+        const response = await api.get(`scheduling/${scheduling.id}`);
+        setSchedulingData(response.data);
+      } catch (error) {
+        Alert.alert("Erro ao carregar os detalhes do agendamento");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchedulingDetails();
+  }, [scheduling.id]);
+
+  if (loading) {
+    return <Text>Carregando...</Text>;
+  }
+
+  if (!schedulingData) {
+    return <Text>Nenhum dado de agendamento disponível</Text>;
+  }
+
+
   return (
-    <Pressable onPress={() => router.push('/(appointment)/new/page')} style={styles.container}>
+    <Pressable 
+      onPress={() => router.push(`/(appointment)/item/${schedulingData.id}`)} 
+      style={styles.container}
+    >
       <Image 
         source={{ uri: 'https://github.com/Rafaela3613.png' }} 
         style={styles.avatar}
@@ -47,7 +78,7 @@ export function CardUser({ scheduling }: CardProps) {
         
         <View style={styles.weekTime}>
           <Ionicons name="time-outline" size={14} color={Colors.orange_700}/>
-          <Text style={styles.nameDetails}>{scheduling.hourAt}</Text>
+          <Text style={styles.nameDetails}>{schedulingData.hourAt}</Text>
         </View>
       </View>
     </Pressable>

@@ -66,7 +66,7 @@ export default function ProfileUser() {
   });
 
   useEffect(() => {
-    const fetchIncident = async () => {
+    const fetchUsers = async () => {
       try {
         const response = await api.get(`users/${userId}`);
         reset(response.data);
@@ -77,7 +77,7 @@ export default function ProfileUser() {
       }
     };
 
-    fetchIncident();
+    fetchUsers();
   }, [id, reset]);
 
   const handleSave = async (data: RegisterSchema) => {
