@@ -96,7 +96,11 @@ export default function AppointmentItem() {
           <Text style={styles.detailText}>Status: {scheduling.status}</Text>
         </View>
 
-        <TouchableOpacity activeOpacity={0.7} style={styles.button}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.alterButton}>
+          <Text>Alterar Agendamento</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity activeOpacity={0.7} style={styles.cancelButton}>
           <Text>Cancelar Agendamento</Text>
         </TouchableOpacity>
       </View>
@@ -147,10 +151,18 @@ const styles = StyleSheet.create({
     color: Colors.zinc_100,
     fontSize: 18,
   },
-  button: {
+  cancelButton: {
     backgroundColor: Colors.red_600,
-    marginTop: 14,
+    marginTop: 4,
     marginBottom: 24,
+    paddingTop: 14,
+    paddingBottom: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  alterButton: {
+    backgroundColor: Colors.orange_600,
+    marginTop: 24,
     paddingTop: 14,
     paddingBottom: 14,
     borderRadius: 8,
