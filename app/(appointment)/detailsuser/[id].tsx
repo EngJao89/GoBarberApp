@@ -18,7 +18,7 @@ interface SchedulingData {
   status: string;
 }
 
-export default function AppointmentItem() {
+export default function AppointmentDetailsUser() {
   const [loading, setLoading] = useState(true);
   const [scheduling, setScheduling] = useState<SchedulingData | null>(null);
   const { id } = useLocalSearchParams();
