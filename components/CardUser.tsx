@@ -63,7 +63,7 @@ export function CardUser({ scheduling }: CardProps) {
 
   return (
     <Pressable 
-      onPress={() => router.push(`/(appointment)/item/${schedulingData.id}`)} 
+      onPress={() => router.push(`/(appointment)/detailsuser/${schedulingData.id}`)} 
       style={styles.container}
     >
       <Image 
