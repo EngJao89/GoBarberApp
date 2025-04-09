@@ -16,6 +16,7 @@ import { router, useFocusEffect } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { CardBarber } from "@/components/CardBarber";
 import api from "@/lib/axios";
+import { NotificationCard } from "@/components/NotificationCard";
 
 interface BarberData {
   id: string;
@@ -115,18 +116,23 @@ export default function BarberList() {
           <Image source={{ uri: 'https://github.com/EngJao89.png' }} style={styles.profile}/>
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
-        <Text style={styles.listTitle}>Agenda de Trabalho</Text>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-        {barberAvailability
-          .filter((availability) => availability.barberId === barberData?.id)
-          .map((availability) => (
-            <CardBarber key={availability.id} barberScheduling={availability} />
-          ))
-        }
-        </ScrollView>
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <Text style={styles.listTitle}>Agendamento Pendente</Text>
+
+          <NotificationCard />
+
+          <Text style={styles.listTitle}>Agenda de Trabalho</Text>
+
+          {barberAvailability
+            .filter((availability) => availability.barberId === barberData?.id)
+            .map((availability) => (
+              <CardBarber key={availability.id} barberScheduling={availability} />
+            ))
+          }
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
