@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native"
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/Colors";
@@ -18,6 +18,15 @@ export function NotificationCard() {
         <Text style={styles.nameDetails}>09:00</Text>
       </View>
 
+      <View style={styles.weekTime}>
+        <TouchableOpacity activeOpacity={0.5} style={styles.button}>
+          <Ionicons name="checkmark-outline" size={20} color={Colors.success} />
+        </TouchableOpacity>
+
+        <TouchableOpacity activeOpacity={0.5}>
+          <Ionicons name="close-outline" size={20} color={Colors.red_600}/>
+        </TouchableOpacity>
+      </View>
     </Pressable>
   )
 }
@@ -40,13 +49,14 @@ const styles = StyleSheet.create({
   },
   weekTime: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 8,
   },
   nameTitle: {
     color: Colors.zinc_200,
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 8,
     marginLeft: 4,
   },
   nameDetails: {
@@ -55,4 +65,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginLeft: 8,
   },
+  button: {
+    marginRight: 16,
+  }
 });
