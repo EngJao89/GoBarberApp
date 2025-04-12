@@ -1,5 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 
@@ -27,7 +28,10 @@ export function CardBarber({ barberScheduling }: CardProps) {
   });
 
   return (
-    <Pressable style={styles.container}>
+    <Pressable 
+      onPress={() => router.push(`/(appointment)/detailsbarber/${barberScheduling.id}`)} 
+      style={styles.container}
+    >
       <Image source={{ uri: 'https://github.com/Rafaela3613.png' }} style={styles.avatar} />
 
       <View>
