@@ -17,6 +17,7 @@ import { Colors } from "@/constants/Colors";
 import { CardBarber } from "@/components/CardBarber";
 import api from "@/lib/axios";
 import { NotificationCard } from "@/components/NotificationCard";
+import { acceptAppointment, rejectAppointment } from "@/services/appointmentService";
 
 interface BarberData {
   id: string;
@@ -34,26 +35,68 @@ interface BarberAvailabilityData {
   endTime: string;
 }
 
+interface AppointmentData {
+  id: string;
+  clientId: string;
+  barberId: string;
+  date: string;
+  time: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  client: {
+    id: string;
+    name: string;
+    avatarUrl: string;
+  };
+}
+
 export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
+  const [pendingAppointments, setPendingAppointments] = useState<AppointmentData[]>([]);
 
   const fetchBarberAvailability = useCallback(async () => {
     try {
       const response = await api.get<BarberAvailabilityData[]>('barber-availability');
-
       const dataWithDates = response.data.map(item => ({
         ...item,
         dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
       }));
-
       const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
-
       setBarberAvailability(sortedData);
     } catch (error: any) {
       Alert.alert("Erro ao carregar os casos.");
     }
   }, []);
+
+  const fetchPendingAppointments = useCallback(async () => {
+    try {
+      const response = await api.get<AppointmentData[]>('appointments/pending');
+      setPendingAppointments(response.data);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
+    }
+  }, []);
+
+  const handleAcceptAppointment = async (appointmentId: string) => {
+    try {
+      await acceptAppointment(appointmentId);
+      Alert.alert("Sucesso", "Agendamento aceito com sucesso!");
+      fetchPendingAppointments();
+      fetchBarberAvailability();
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível aceitar o agendamento.");
+    }
+  };
+
+  const handleRejectAppointment = async (appointmentId: string) => {
+    try {
+      await rejectAppointment(appointmentId);
+      Alert.alert("Sucesso", "Agendamento recusado com sucesso!");
+      fetchPendingAppointments();
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível recusar o agendamento.");
+    }
+  };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authBarberToken');
@@ -93,11 +136,13 @@ export default function BarberList() {
   
     fetchBarberData();
     fetchBarberAvailability();
+    fetchPendingAppointments();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       fetchBarberAvailability();
+      fetchPendingAppointments();
     }, [])
   );
 
@@ -121,7 +166,19 @@ export default function BarberList() {
         <View style={styles.container}>
           <Text style={styles.listTitle}>Agendamento Pendente</Text>
 
-          <NotificationCard />
+          {pendingAppointments
+            .filter(appointment => appointment.barberId === barberData?.id)
+            .map(appointment => (
+              <NotificationCard
+                key={appointment.id}
+                id={appointment.id}
+                date={appointment.date}
+                time={appointment.time}
+                avatarUrl={appointment.client.avatarUrl}
+                onAccept={handleAcceptAppointment}
+                onReject={handleRejectAppointment}
+              />
+            ))}
 
           <Text style={styles.listTitle}>Agenda de Trabalho</Text>
 
@@ -129,8 +186,7 @@ export default function BarberList() {
             .filter((availability) => availability.barberId === barberData?.id)
             .map((availability) => (
               <CardBarber key={availability.id} barberScheduling={availability} />
-            ))
-          }
+            ))}
         </View>
       </ScrollView>
     </SafeAreaView>
