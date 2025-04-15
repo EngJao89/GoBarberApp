@@ -12,12 +12,11 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
-
 import { Colors } from "@/constants/Colors";
 import { CardBarber } from "@/components/CardBarber";
 import api from "@/lib/axios";
 import { NotificationCard } from "@/components/NotificationCard";
-import { acceptAppointment, rejectAppointment } from "@/services/appointmentService";
+import { fetchPendingSchedulings, updateSchedulingStatus } from "@/services/schedulingService";
 
 interface BarberData {
   id: string;
@@ -35,66 +34,90 @@ interface BarberAvailabilityData {
   endTime: string;
 }
 
-interface AppointmentData {
-  id: string;
-  clientId: string;
-  barberId: string;
-  date: string;
-  time: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  client: {
-    id: string;
-    name: string;
-    avatarUrl: string;
-  };
-}
-
 export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
-  const [pendingAppointments, setPendingAppointments] = useState<AppointmentData[]>([]);
+  const [pendingSchedulings, setPendingSchedulings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchBarberData = useCallback(async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('authBarberToken');
+
+      if (!storedData) {
+        handleLogout();
+        return;
+      }
+
+      const response = await api.post(
+        'auth-barber/me',
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${storedData}`,
+          },
+        }
+      );
+
+      setBarberData(response.data);
+      return response.data.id;
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar os dados do barbeiro.");
+      throw error;
+    }
+  }, []);
 
   const fetchBarberAvailability = useCallback(async () => {
     try {
       const response = await api.get<BarberAvailabilityData[]>('barber-availability');
+
       const dataWithDates = response.data.map(item => ({
         ...item,
         dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
       }));
+
       const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+
       setBarberAvailability(sortedData);
     } catch (error: any) {
       Alert.alert("Erro ao carregar os casos.");
     }
   }, []);
 
-  const fetchPendingAppointments = useCallback(async () => {
+  const fetchPendingAppointments = useCallback(async (barberId: string) => {
     try {
-      const response = await api.get<AppointmentData[]>('appointments/pending');
-      setPendingAppointments(response.data);
+      setIsLoading(true);
+      const schedulings = await fetchPendingSchedulings(barberId);
+      setPendingSchedulings(schedulings);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  const handleAcceptAppointment = async (appointmentId: string) => {
+  const handleAccept = async (id: string) => {
     try {
-      await acceptAppointment(appointmentId);
-      Alert.alert("Sucesso", "Agendamento aceito com sucesso!");
-      fetchPendingAppointments();
-      fetchBarberAvailability();
+      await updateSchedulingStatus(id, 'confirmado');
+      if (barberData) {
+        fetchPendingAppointments(barberData.id);
+      }
+      Alert.alert("Sucesso", "Agendamento confirmado com sucesso!");
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível aceitar o agendamento.");
+      Alert.alert("Erro", "Não foi possível confirmar o agendamento.");
     }
   };
 
-  const handleRejectAppointment = async (appointmentId: string) => {
+  const handleReject = async (id: string) => {
     try {
-      await rejectAppointment(appointmentId);
-      Alert.alert("Sucesso", "Agendamento recusado com sucesso!");
-      fetchPendingAppointments();
+      await updateSchedulingStatus(id, 'cancelado');
+      if (barberData) {
+        fetchPendingAppointments(barberData.id);
+      }
+      Alert.alert("Sucesso", "Agendamento cancelado com sucesso!");
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível recusar o agendamento.");
+      Alert.alert("Erro", "Não foi possível cancelar o agendamento.");
     }
   };
 
@@ -104,54 +127,38 @@ export default function BarberList() {
   };
 
   useEffect(() => {
-    async function fetchBarberData() {
+    const loadData = async () => {
       try {
-        const storedData = await AsyncStorage.getItem('authBarberToken');
-
-        if (!storedData) {
-          handleLogout();
-          return;
-        }
-
-        if (storedData) {
-          const response = await api.post(
-            'auth-barber/me',
-            {},
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${storedData}`,
-              },
-            }
-          );
-
-          setBarberData(response.data);
-        } else {
-          Alert.alert("Nenhum token encontrado. Tente Novamente");
+        const barberId = await fetchBarberData();
+        if (barberId) {
+          await fetchPendingAppointments(barberId);
         }
       } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar os dados do barbeiro.");
+        console.error(error);
       }
-    }
-  
-    fetchBarberData();
-    fetchBarberAvailability();
-    fetchPendingAppointments();
+    };
+
+    loadData();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      fetchBarberAvailability();
-      fetchPendingAppointments();
-    }, [])
+      if (barberData) {
+        fetchPendingAppointments(barberData.id);
+      }
+    }, [barberData])
   );
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <View>
           <Text style={styles.welcomeTitle}>Bem Vindo,</Text>
-
           <TouchableOpacity onPress={() => router.push(`/(dashboard)/profilebarber/${barberData?.id}`)}>
             <Text style={styles.nameTitle}>{barberData ? barberData.name : "Carregando..."}</Text>
           </TouchableOpacity>
@@ -162,31 +169,38 @@ export default function BarberList() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-          <Text style={styles.listTitle}>Agendamento Pendente</Text>
+          <Text style={styles.listTitle}>Agendamentos Pendentes</Text>
 
-          {pendingAppointments
-            .filter(appointment => appointment.barberId === barberData?.id)
-            .map(appointment => (
+          {isLoading ? (
+            <Text style={styles.loadingText}>Carregando...</Text>
+          ) : pendingSchedulings.length === 0 ? (
+            <Text style={styles.emptyText}>Nenhum agendamento pendente</Text>
+          ) : (
+            pendingSchedulings.map(scheduling => (
               <NotificationCard
-                key={appointment.id}
-                id={appointment.id}
-                date={appointment.date}
-                time={appointment.time}
-                avatarUrl={appointment.client.avatarUrl}
-                onAccept={handleAcceptAppointment}
-                onReject={handleRejectAppointment}
+                key={scheduling.id}
+                id={scheduling.id}
+                date={formatDate(scheduling.dayAt)}
+                time={scheduling.hourAt}
+                serviceType={scheduling.serviceType}
+                clientName={scheduling.user?.name || "Cliente"}
+                avatarUrl={scheduling.user?.avatarUrl}
+                onAccept={handleAccept}
+                onReject={handleReject}
               />
-            ))}
+            ))
+          )}
 
-          <Text style={styles.listTitle}>Agenda de Trabalho</Text>
+          <Text style={styles.listTitle}>Próximos Agendamentos</Text>
 
           {barberAvailability
             .filter((availability) => availability.barberId === barberData?.id)
             .map((availability) => (
               <CardBarber key={availability.id} barberScheduling={availability} />
-            ))}
+            ))
+          }
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -198,12 +212,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.zinc_900,
   },
+  scrollContainer: {
+    paddingBottom: 120,
+  },
   container: {
     backgroundColor: Colors.zinc_800,
     paddingTop: 24,
-    paddingLeft: 16,
-    paddingRight: 16,
-    marginBottom: 180,
+    paddingHorizontal: 16,
+    gap: 16,
   },
   header: {
     width: '100%',
@@ -212,6 +228,7 @@ const styles = StyleSheet.create({
     marginBottom: 36,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
   },
   welcomeTitle: {
     color: Colors.zinc_500,
@@ -227,12 +244,22 @@ const styles = StyleSheet.create({
     color: Colors.zinc_100,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 36,
-    marginLeft: 24,
+    marginLeft: 8,
   },
   profile: {
     width: 56,
     height: 56,
     borderRadius: 32,
+  },
+  loadingText: {
+    color: Colors.zinc_400,
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  emptyText: {
+    color: Colors.zinc_500,
+    textAlign: 'center',
+    marginVertical: 16,
+    fontStyle: 'italic',
   },
 });

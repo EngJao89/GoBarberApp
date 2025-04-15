@@ -1,3 +1,4 @@
+
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
@@ -6,7 +7,9 @@ interface NotificationCardProps {
   id: string;
   date: string;
   time: string;
-  avatarUrl: string;
+  serviceType: string;
+  clientName: string;
+  avatarUrl?: string;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
 }
@@ -15,25 +18,40 @@ export function NotificationCard({
   id, 
   date, 
   time, 
+  serviceType,
+  clientName,
   avatarUrl, 
   onAccept, 
   onReject 
 }: NotificationCardProps) {
   return (
     <Pressable style={styles.container}>
-      <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+      {avatarUrl ? (
+        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+      ) : (
+        <View style={[styles.avatar, { backgroundColor: Colors.zinc_600 }]}>
+          <Ionicons name="person-outline" size={24} color={Colors.zinc_300} />
+        </View>
+      )}
 
-      <View style={styles.weekTime}>
-        <Ionicons name="calendar-outline" size={14} color={Colors.orange_700} />
-        <Text style={styles.nameTitle}>{date}</Text>
+      <View style={styles.infoContainer}>
+        <Text style={styles.clientName}>{clientName}</Text>
+        <Text style={styles.serviceType}>{serviceType}</Text>
+        
+        <View style={styles.timeContainer}>
+          <View style={styles.weekTime}>
+            <Ionicons name="calendar-outline" size={14} color={Colors.orange_700} />
+            <Text style={styles.nameTitle}>{date}</Text>
+          </View>
+
+          <View style={styles.weekTime}>
+            <Ionicons name="time-outline" size={14} color={Colors.orange_700} />
+            <Text style={styles.nameDetails}>{time}</Text>
+          </View>
+        </View>
       </View>
 
-      <View style={styles.weekTime}>
-        <Ionicons name="time-outline" size={14} color={Colors.orange_700} />
-        <Text style={styles.nameDetails}>{time}</Text>
-      </View>
-
-      <View style={styles.weekTime}>
+      <View style={styles.actions}>
         <TouchableOpacity 
           activeOpacity={0.5} 
           style={styles.button}
@@ -52,27 +70,36 @@ export function NotificationCard({
     </Pressable>
   )
 }
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.zinc_700,
-    width: 370,
+    width: '100%',
     padding: 16,
-    marginLeft: 20,
     marginBottom: 16,
     borderRadius: 8,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    alignItems: 'center',
+    gap: 12,
   },
   avatar: {
     width: 50,
     height: 50,
-    borderRadius: 32,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 4,
   },
   weekTime: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
   },
   nameTitle: {
     color: Colors.zinc_200,
@@ -84,7 +111,21 @@ const styles = StyleSheet.create({
     color: Colors.zinc_400,
     fontSize: 14,
     fontWeight: '400',
-    marginLeft: 8,
+    marginLeft: 4,
+  },
+  clientName: {
+    color: Colors.zinc_100,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  serviceType: {
+    color: Colors.orange_500,
+    fontSize: 14,
+    marginTop: 2,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
   },
   button: {
     marginRight: 16,
