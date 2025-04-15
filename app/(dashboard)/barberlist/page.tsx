@@ -100,21 +100,21 @@ export default function BarberList() {
   const handleAccept = async (id: string) => {
     try {
       await updateSchedulingStatus(id, 'confirmado');
-      if (barberData) {
-        fetchPendingAppointments(barberData.id);
-      }
+
+      setPendingSchedulings(prev => prev.filter(item => item.id !== id));
+
       Alert.alert("Sucesso", "Agendamento confirmado com sucesso!");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível confirmar o agendamento.");
     }
   };
-
+  
   const handleReject = async (id: string) => {
     try {
       await updateSchedulingStatus(id, 'cancelado');
-      if (barberData) {
-        fetchPendingAppointments(barberData.id);
-      }
+
+      setPendingSchedulings(prev => prev.filter(item => item.id !== id));
+
       Alert.alert("Sucesso", "Agendamento cancelado com sucesso!");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível cancelar o agendamento.");
@@ -145,6 +145,7 @@ export default function BarberList() {
     useCallback(() => {
       if (barberData) {
         fetchPendingAppointments(barberData.id);
+        fetchBarberAvailability();
       }
     }, [barberData])
   );
@@ -193,7 +194,7 @@ export default function BarberList() {
             ))
           )}
 
-          <Text style={styles.listTitle}>Próximos Agendamentos</Text>
+          <Text style={styles.listTitle}>Horários de Trabalho</Text>
 
           {barberAvailability
             .filter((availability) => availability.barberId === barberData?.id)
