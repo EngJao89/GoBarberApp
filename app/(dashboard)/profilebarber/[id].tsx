@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { 
   Alert, 
   Image, 
@@ -11,6 +10,7 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
+import { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as z from "zod";
@@ -19,15 +19,8 @@ import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import api from "@/lib/axios";
+import { BarberData } from "@/@types/barber";
 import { Colors } from "@/constants/Colors";
-
-interface BarberData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  barbershop: string;
-}
 
 const registerSchema = z.object({
   name: z.string().min(3, "Nome é obrigatório"),
