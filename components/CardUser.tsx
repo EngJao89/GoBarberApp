@@ -1,25 +1,12 @@
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
-
-import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
 import { useEffect, useState } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from "expo-router";
+
 import api from "@/lib/axios";
+import { CardProps, SchedulingData } from "@/@types/scheduling";
+import { Colors } from "@/constants/Colors";
 import { Loading } from "./Loading";
-
-interface SchedulingData {
-  id: string;
-  barberId: string;
-  userId: string;
-  dayAt: Date | string;
-  hourAt: string;
-  serviceType: string;
-  status: string;
-}
-
-interface CardProps {
-  scheduling: SchedulingData;
-}
 
 export function CardUser({ scheduling }: CardProps) {
   const [schedulingData, setSchedulingData] = useState<SchedulingData | null>(null);
