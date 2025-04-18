@@ -12,27 +12,13 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
-import { Colors } from "@/constants/Colors";
-import { CardBarber } from "@/components/CardBarber";
+
 import api from "@/lib/axios";
-import { NotificationCard } from "@/components/NotificationCard";
+import { BarberAvailabilityData, BarberData } from "@/@types/barber";
+import { Colors } from "@/constants/Colors";
 import { fetchPendingSchedulings, updateSchedulingStatus } from "@/services/schedulingService";
-
-interface BarberData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  barberShop: string;
-}
-
-interface BarberAvailabilityData {
-  id: string;
-  barberId: string;
-  dayAt: Date | string;
-  startTime: string;
-  endTime: string;
-}
+import { CardBarber } from "@/components/CardBarber";
+import { NotificationCard } from "@/components/NotificationCard";
 
 export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
