@@ -4,19 +4,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import api from "@/lib/axios";
+import { SchedulingData } from "@/@types/scheduling";
 import { Colors } from "@/constants/Colors";
 import { Loading } from "@/components/Loading";
 import { NotFound } from "@/components/NotFound";
-
-interface SchedulingData {
-  id: string;
-  userId: string;
-  barberId: string;
-  dayAt: string;
-  hourAt: string;
-  serviceType: string;
-  status: string;
-}
 
 export default function AppointmentDetailsUser() {
   const [loading, setLoading] = useState(true);

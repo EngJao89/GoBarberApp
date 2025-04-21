@@ -14,38 +14,15 @@ import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import axios from 'axios';
 import { router } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { Colors } from "@/constants/Colors";
 import api from "@/lib/axios";
-
-interface Barber {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  barbershop: string;
-}
-
-interface FormData {
-  barberId: string;
-  dayAt: Date;
-  hourAt: string;
-  serviceType: string;
-}
-
-interface Scheduling {
-  id: string;
-  userId: string;
-  barberId: string;
-  dayAt: string;
-  hourAt: string;
-  serviceType: string;
-  status: string;
-}
+import { Scheduling } from "@/@types/scheduling";
+import { BarberData } from "@/@types/barber";
+import { FormData } from "@/@types/form";
+import { Colors } from "@/constants/Colors";
 
 const registerSchema = z.object({
   barberId: z.string().min(1, "Selecione um barbeiro"),
@@ -77,7 +54,7 @@ export default function Appointment() {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [barbers, setBarbers] = useState<BarberData[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
   const minimumDate = new Date(2020, 0, 1);
 
