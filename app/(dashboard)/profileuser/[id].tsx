@@ -19,16 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 import api from "@/lib/axios";
+import { UserData } from "@/@types/user";
 import { Colors } from "@/constants/Colors";
-
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  accessToken: string;
-}
 
 const registerSchema = z.object({
   name: z.string().min(3, "Nome é obrigatório"),

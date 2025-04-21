@@ -15,27 +15,13 @@ import { router, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import api from "@/lib/axios";
+import { SchedulingData } from "@/@types/scheduling";
+import { UserData } from "@/@types/user";
+
 import { Colors } from "@/constants/Colors";
 import { CardUser } from "@/components/CardUser";
 import { Loading } from "@/components/Loading";
 import { NotFound } from "@/components/NotFound";
-
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
-
-interface SchedulingData {
-  id: string;
-  barberId: string;
-  userId: string
-  dayAt: Date | string;
-  hourAt: string;
-  serviceType: string;
-  status: string;
-}
 
 export default function UserList() {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -55,7 +41,7 @@ export default function UserList() {
       const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
       setSchedulingData(sortedData);
     } catch (error: any) {
-      Alert.alert("Erro ao carregar os casos.");
+      Alert.alert("Erro ao carregar os agendamentos.");
     }
   }, []);
 

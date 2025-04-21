@@ -2,7 +2,7 @@ export interface SchedulingData {
   id: string;
   userId: string;
   barberId: string;
-  dayAt: string;
+  dayAt: Date;
   hourAt: string;
   serviceType: string;
   status: 'pendente' | 'confirmado' | 'cancelado';
