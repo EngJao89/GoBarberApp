@@ -13,17 +13,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import api from "@/lib/axios";
+import { BarberSchedulingData } from "@/@types/barberScheduling";
 import { Colors } from "@/constants/Colors";
 import { Loading } from "@/components/Loading";
 import { NotFound } from "@/components/NotFound";
-
-interface BarberSchedulingData {
-  id: string;
-  barberId: string;
-  dayAt: string;
-  startTime: string;
-  endTime: string
-}
 
 export default function  AppointmentDetailsUser(){
   const [loading, setLoading] = useState(true);
