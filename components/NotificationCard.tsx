@@ -1,18 +1,9 @@
 
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
 
-interface NotificationCardProps {
-  id: string;
-  date: string;
-  time: string;
-  serviceType: string;
-  clientName: string;
-  avatarUrl?: string;
-  onAccept: (id: string) => void;
-  onReject: (id: string) => void;
-}
+import { Colors } from "@/constants/Colors";
+import { NotificationCardProps } from "@/@types/notification";
 
 export function NotificationCard({ 
   id, 
