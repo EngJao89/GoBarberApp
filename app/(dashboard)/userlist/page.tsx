@@ -28,7 +28,6 @@ export default function UserList() {
   const [schedulingData, setSchedulingData] = useState<SchedulingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
   const fetchScheduling = useCallback(async () => {
     try {
       const response = await api.get<SchedulingData[]>('scheduling');
@@ -38,7 +37,19 @@ export default function UserList() {
         dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
       }));
 
-      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const todaySchedulings = dataWithDates.filter(item => {
+        const itemDate = new Date(item.dayAt);
+        const itemDateLocal = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return itemDateLocal.getTime() === todayLocal.getTime();
+      });
+
+      const sortedData = todaySchedulings.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
       setSchedulingData(sortedData);
     } catch (error: any) {
       Alert.alert("Erro ao carregar os agendamentos.");

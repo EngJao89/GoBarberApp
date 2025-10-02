@@ -75,7 +75,18 @@ export default function BarberList() {
     try {
       setIsLoading(true);
       const schedulings = await fetchPendingSchedulings(barberId);
-      setPendingSchedulings(schedulings);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todaySchedulings = schedulings.filter(scheduling => {
+        const schedulingDate = new Date(scheduling.dayAt);
+        const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
+        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return schedulingDateLocal.getTime() === todayLocal.getTime();
+      });
+
+      setPendingSchedulings(todaySchedulings);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
     } finally {
