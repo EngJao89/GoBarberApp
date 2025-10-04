@@ -29,6 +29,14 @@ const registerSchema = z.object({
   dayAt: z.date({
     required_error: "Selecione uma data",
     invalid_type_error: "Data inválida",
+  }).refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+    return selectedDate.getTime() >= today.getTime();
+  }, {
+    message: "Não é possível agendar em datas passadas"
   }),
   hourAt: z.string().min(1, "Selecione um horário"),
   serviceType: z.string().min(3, "Descreva o serviço (mín. 3 caracteres)"),
@@ -56,7 +64,10 @@ export default function Appointment() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [barbers, setBarbers] = useState<BarberData[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
-  const minimumDate = new Date(2020, 0, 1);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const minimumDate = today;
 
   const morningHours = ['09:00', '10:00', '11:00', '12:00'];
   const afternoonHours = ['13:00', '14:00', '15:00', '16:00', '17:00'];
@@ -79,6 +90,16 @@ export default function Appointment() {
 
   const onSubmit = async (data: FormData) => {
     try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(data.dayAt);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate.getTime() < today.getTime()) {
+        Alert.alert('Data inválida', 'Não é possível agendar em datas passadas.');
+        return;
+      }
+
       const [hours, minutes] = data.hourAt.split(':');
       const dayAt = new Date(data.dayAt);
       dayAt.setHours(parseInt(hours), parseInt(minutes));
