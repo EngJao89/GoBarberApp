@@ -26,7 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="(appointment)/detailsbarber/[id]" options={{headerShown: false}}/>
       </Stack>
 
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
     </>
   );
 }
