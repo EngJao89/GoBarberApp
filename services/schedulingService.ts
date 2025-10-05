@@ -15,6 +15,20 @@ export const fetchPendingSchedulings = async (barberId: string): Promise<Schedul
   }
 };
 
+export const fetchConfirmedSchedulings = async (barberId: string): Promise<SchedulingData[]> => {
+  try {
+    const response = await api.get(`scheduling/`, {
+      params: {
+        barberId,
+        status: 'confirmado'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const updateSchedulingStatus = async (id: string, status: 'confirmado' | 'cancelado') => {
   try {
     const response = await api.patch(`scheduling/${id}`, { status });

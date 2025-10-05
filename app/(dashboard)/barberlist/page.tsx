@@ -16,14 +16,14 @@ import { router, useFocusEffect } from "expo-router";
 import api from "@/lib/axios";
 import { BarberAvailabilityData, BarberData } from "@/@types/barber";
 import { Colors } from "@/constants/Colors";
-import { fetchPendingSchedulings, updateSchedulingStatus } from "@/services/schedulingService";
+import { fetchConfirmedSchedulings } from "@/services/schedulingService";
 import { CardBarber } from "@/components/CardBarber";
 import { NotificationCard } from "@/components/NotificationCard";
 
 export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
-  const [pendingSchedulings, setPendingSchedulings] = useState<any[]>([]);
+  const [confirmedSchedulings, setConfirmedSchedulings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchBarberData = useCallback(async () => {
@@ -63,18 +63,28 @@ export default function BarberList() {
         dayAt: typeof item.dayAt === 'string' ? new Date(item.dayAt) : item.dayAt,
       }));
 
-      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todayAvailability = dataWithDates.filter(availability => {
+        const availabilityDate = new Date(availability.dayAt);
+        const availabilityDateLocal = new Date(availabilityDate.getFullYear(), availabilityDate.getMonth(), availabilityDate.getDate());
+        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return availabilityDateLocal.getTime() === todayLocal.getTime();
+      });
+
+      const sortedData = todayAvailability.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
 
       setBarberAvailability(sortedData);
     } catch (error: any) {
-      Alert.alert("Erro ao carregar os casos.");
+      Alert.alert("Erro ao carregar os horários de trabalho.");
     }
   }, []);
 
-  const fetchPendingAppointments = useCallback(async (barberId: string) => {
+  const fetchConfirmedAppointments = useCallback(async (barberId: string) => {
     try {
       setIsLoading(true);
-      const schedulings = await fetchPendingSchedulings(barberId);
+      const schedulings = await fetchConfirmedSchedulings(barberId);
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -86,37 +96,14 @@ export default function BarberList() {
         return schedulingDateLocal.getTime() === todayLocal.getTime();
       });
 
-      setPendingSchedulings(todaySchedulings);
+      setConfirmedSchedulings(todaySchedulings);
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
+      Alert.alert("Erro", "Não foi possível carregar os agendamentos confirmados.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const handleAccept = async (id: string) => {
-    try {
-      await updateSchedulingStatus(id, 'confirmado');
-
-      setPendingSchedulings(prev => prev.filter(item => item.id !== id));
-
-      Alert.alert("Sucesso", "Agendamento confirmado com sucesso!");
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível confirmar o agendamento.");
-    }
-  };
-  
-  const handleReject = async (id: string) => {
-    try {
-      await updateSchedulingStatus(id, 'cancelado');
-
-      setPendingSchedulings(prev => prev.filter(item => item.id !== id));
-
-      Alert.alert("Sucesso", "Agendamento cancelado com sucesso!");
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível cancelar o agendamento.");
-    }
-  };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authBarberToken');
@@ -128,7 +115,7 @@ export default function BarberList() {
       try {
         const barberId = await fetchBarberData();
         if (barberId) {
-          await fetchPendingAppointments(barberId);
+          await fetchConfirmedAppointments(barberId);
         }
       } catch (error) {
         console.error(error);
@@ -141,7 +128,7 @@ export default function BarberList() {
   useFocusEffect(
     useCallback(() => {
       if (barberData) {
-        fetchPendingAppointments(barberData.id);
+        fetchConfirmedAppointments(barberData.id);
         fetchBarberAvailability();
       }
     }, [barberData])
@@ -169,14 +156,14 @@ export default function BarberList() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-          <Text style={styles.listTitle}>Agendamentos Pendentes</Text>
+          <Text style={styles.listTitle}>Agendamentos Confirmados</Text>
 
           {isLoading ? (
             <Text style={styles.loadingText}>Carregando...</Text>
-          ) : pendingSchedulings.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhum agendamento pendente</Text>
+          ) : confirmedSchedulings.length === 0 ? (
+            <Text style={styles.emptyText}>Nenhum agendamento confirmado para hoje</Text>
           ) : (
-            pendingSchedulings.map(scheduling => (
+            confirmedSchedulings.map(scheduling => (
               <NotificationCard
                 key={scheduling.id}
                 id={scheduling.id}
@@ -185,8 +172,8 @@ export default function BarberList() {
                 serviceType={scheduling.serviceType}
                 clientName={scheduling.user?.name || "Cliente"}
                 avatarUrl={scheduling.user?.avatarUrl}
-                onAccept={handleAccept}
-                onReject={handleReject}
+                onAccept={() => {}} // Função vazia para agendamentos confirmados
+                onReject={() => {}} // Função vazia para agendamentos confirmados
               />
             ))
           )}
