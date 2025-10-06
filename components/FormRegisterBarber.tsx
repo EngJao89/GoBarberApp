@@ -26,7 +26,7 @@ export function FormRegisterBarber() {
 
   const onSubmit = async (data: RegisterSchema) => {
     try {
-      const response = await api.post('barbers', {
+      const response = await api.post('auth-barber/register', {
         name: data.name,
         email: data.email,
         password: data.password,

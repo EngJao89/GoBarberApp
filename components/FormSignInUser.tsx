@@ -50,6 +50,7 @@ export function FormSignInUser() {
         return;
       }
 
+      console.log('🔐 Tentando login com:', { email: data.email, passwordLength: data.password.length });
       const response = await api.post('auth-user/login', data, { withCredentials: true });
 
       if (response.data.accessToken) {
@@ -59,8 +60,16 @@ export function FormSignInUser() {
       } else {
         Alert.alert('Token não encontrado na resposta.');
       }
-    } catch (error) {
-      Alert.alert('Login falhou. Verifique suas credenciais.');
+    } catch (error: any) {
+      console.error('Erro no login:', error.response?.data || error.message);
+      
+      if (error.response?.status === 401) {
+        Alert.alert('Erro de Login', 'Email ou senha incorretos. Verifique suas credenciais.');
+      } else if (error.response?.status === 400) {
+        Alert.alert('Erro de Validação', error.response.data.message || 'Dados inválidos.');
+      } else {
+        Alert.alert('Erro de Conexão', 'Não foi possível conectar com o servidor. Tente novamente.');
+      }
     }
   };
 
