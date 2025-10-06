@@ -1,10 +1,36 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://192.168.100.11:3333/',
+  baseURL: 'https://api-gb-vowe.onrender.com/',
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
+  timeout: 10000, // 10 segundos de timeout
 });
+
+// Interceptor para debug de requisições
+api.interceptors.request.use(
+  (config) => {
+    console.log('🚀 Requisição:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('❌ Erro na requisição:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor para debug de respostas
+api.interceptors.response.use(
+  (response) => {
+    console.log('✅ Resposta:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('❌ Erro na resposta:', error.response?.status, error.response?.data, error.message);
+    return Promise.reject(error);
+  }
+);
 
 export default api;

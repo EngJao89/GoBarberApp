@@ -27,7 +27,7 @@ export function FormRegisterUser() {
   const onSubmit = async (data: RegisterSchema) => {
     try {
 
-      const response = await api.post('users', {
+      const response = await api.post('auth-user/register', {
         name: data.name,
         email: data.email,
         password: data.password,
