@@ -6,10 +6,9 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 10000, // 10 segundos de timeout
+  timeout: 10000,
 });
 
-// Interceptor para debug de requisições
 api.interceptors.request.use(
   (config) => {
     console.log('🚀 Requisição:', config.method?.toUpperCase(), config.url);
@@ -21,7 +20,6 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para debug de respostas
 api.interceptors.response.use(
   (response) => {
     console.log('✅ Resposta:', response.status, response.config.url);
