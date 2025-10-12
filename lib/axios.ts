@@ -1,12 +1,14 @@
 import axios from 'axios'
+// import { ENV_CONFIG, type EnvConfig } from '@/config';
+import { ENV_CONFIG, type EnvConfig } from '@/config/force-local';
 
 const api = axios.create({
-  baseURL: 'https://api-gb-vowe.onrender.com/',
+  baseURL: ENV_CONFIG.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 10000,
+  timeout: ENV_CONFIG.API_TIMEOUT,
 });
 
 api.interceptors.request.use(
