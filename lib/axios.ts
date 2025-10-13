@@ -1,5 +1,4 @@
 import axios from 'axios'
-// import { ENV_CONFIG, type EnvConfig } from '@/config';
 import { ENV_CONFIG, type EnvConfig } from '@/config/force-local';
 
 const api = axios.create({

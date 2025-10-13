@@ -1,7 +1,5 @@
-// Configuração dinâmica baseada no ambiente para Expo
 import Constants from 'expo-constants';
 
-// Configurações inline para evitar problemas de importação
 const DEV_CONFIG = {
   API_BASE_URL: 'https://api-gb-vowe.onrender.com',
   ENVIRONMENT: 'development',
@@ -26,7 +24,6 @@ const LOCAL_CONFIG = {
   API_TIMEOUT: 10000,
 };
 
-// Carregar variáveis de ambiente do arquivo .env (apenas em Node.js)
 if (typeof process !== 'undefined' && process.env && typeof require !== 'undefined') {
   try {
     const fs = require('fs');
@@ -41,22 +38,16 @@ if (typeof process !== 'undefined' && process.env && typeof require !== 'undefin
         }
       });
     }
-  } catch (error) {
-    // Ignorar erro se não conseguir carregar (normal no React Native)
-  }
+  } catch (error) {}
 }
 
-// Determina qual ambiente usar baseado nas variáveis do Expo
 const getEnvironment = () => {
-  // Verifica se está rodando em produção (build de produção)
   if (__DEV__ === false) {
     return 'production';
   }
-  
-  // Verifica variável de ambiente personalizada do Expo
+
   const customEnv = Constants.expoConfig?.extra?.environment || process.env.EXPO_PUBLIC_ENVIRONMENT;
-  
-  // Debug: mostrar qual ambiente foi detectado
+
   if (__DEV__) {
     console.log('🔍 Debug - customEnv detectado:', customEnv);
     console.log('🔍 Debug - Constants.expoConfig?.extra?.environment:', Constants.expoConfig?.extra?.environment);
@@ -71,14 +62,12 @@ const getEnvironment = () => {
   if (customEnv === 'local') {
     return 'local';
   }
-  
-  // Padrão: desenvolvimento
+
   return 'development';
 };
 
 const environment = getEnvironment();
 
-// Exporta a configuração baseada no ambiente
 let ENV_CONFIG: typeof DEV_CONFIG;
 switch (environment) {
   case 'production':
@@ -91,11 +80,9 @@ switch (environment) {
     ENV_CONFIG = DEV_CONFIG;
 }
 
-// Exportar a configuração
 export { ENV_CONFIG };
 export type EnvConfig = typeof ENV_CONFIG;
 
-// Log da configuração atual (apenas em desenvolvimento)
 if (__DEV__) {
   console.log(`🔧 Ambiente: ${ENV_CONFIG.ENVIRONMENT}`);
   console.log(`🌐 API URL: ${ENV_CONFIG.API_BASE_URL}`);

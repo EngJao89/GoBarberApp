@@ -1,4 +1,3 @@
-// Configurações do ambiente de PRODUÇÃO
 export const ENV_CONFIG = {
   API_BASE_URL: 'https://api-gb-vowe.onrender.com',
   ENVIRONMENT: 'production',
