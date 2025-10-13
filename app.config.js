@@ -1,4 +1,3 @@
-// Configuração dinâmica do Expo baseada no ambiente
 const IS_DEV = process.env.NODE_ENV === 'development' || process.env.EXPO_PUBLIC_ENVIRONMENT === 'development';
 
 export default {

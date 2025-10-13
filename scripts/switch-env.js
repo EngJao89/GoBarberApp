@@ -6,7 +6,6 @@ const path = require('path');
 const ENV_FILE = path.join(__dirname, '../.env');
 const ENV_LOCAL_FILE = path.join(__dirname, '../.env.local');
 
-// Configurações dos ambientes para Expo
 const environments = {
   dev: {
     NODE_ENV: 'development',
@@ -47,7 +46,6 @@ function createEnvFile(env) {
   console.log(`🐛 Debug: ${config.EXPO_PUBLIC_DEBUG}`);
 }
 
-// Verificar argumentos
 const env = process.argv[2];
 
 if (!env || !environments[env]) {
