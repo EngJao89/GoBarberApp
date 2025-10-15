@@ -10,6 +10,7 @@ import { Loading } from "./Loading";
 
 export function CardUser({ scheduling }: CardProps) {
   const [schedulingData, setSchedulingData] = useState<SchedulingData | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const dayAtDate = typeof scheduling.dayAt === 'string' 
@@ -27,6 +28,9 @@ export function CardUser({ scheduling }: CardProps) {
       try {
         const response = await api.get(`scheduling/${scheduling.id}`);
         setSchedulingData(response.data);
+
+        const userResponse = await api.get(`users/${response.data.userId}`);
+        setUserData(userResponse.data);
       } catch (error) {
         Alert.alert("Erro ao carregar os detalhes do agendamento");
       } finally {
@@ -54,12 +58,12 @@ export function CardUser({ scheduling }: CardProps) {
       style={styles.container}
     >
       <Image 
-        source={{ uri: 'https://github.com/Rafaela3613.png' }} 
+        source={{ uri: userData?.avatar || 'https://github.com/EngJao89.png' }} 
         style={styles.avatar}
       />
 
       <View>
-        <Text style={styles.nameTitle}>Rafaela Rabelo</Text>
+        <Text style={styles.nameTitle}>{userData?.name || 'Carregando...'}</Text>
 
         <View style={styles.weekTime}>
           <Ionicons name="calendar-outline" size={14} color={Colors.orange_700}/>
