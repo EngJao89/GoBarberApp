@@ -42,14 +42,7 @@ export default function UserList() {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const todaySchedulings = dataWithDates.filter(item => {
-        const itemDate = new Date(item.dayAt);
-        const itemDateLocal = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
-        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return itemDateLocal.getTime() === todayLocal.getTime();
-      });
-
-      const sortedData = todaySchedulings.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
       setSchedulingData(sortedData);
     } catch (error: any) {
       Alert.alert("Erro ao carregar os agendamentos.");
