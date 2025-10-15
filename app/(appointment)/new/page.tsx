@@ -15,6 +15,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -73,7 +74,39 @@ export default function Appointment() {
   const afternoonHours = ['13:00', '14:00', '15:00', '16:00', '17:00'];
   const eveningHours = ['18:00', '19:00', '20:00'];
 
-  const userId = "11838564-fe2f-48c2-8b03-dce0890b3a19";
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const fetchUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('authUserToken');
+
+      if (!storedData) {
+        Alert.alert('Erro', 'Usuário não logado. Faça login novamente.');
+        router.replace('/');
+        return;
+      }
+
+      const response = await api.post(
+        'auth-user/me',
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${storedData}`,
+          },
+        }
+      );
+
+      setUserId(response.data.id);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        Alert.alert('Erro', 'Sessão expirada. Faça login novamente.');
+        router.replace('/');
+      } else {
+        Alert.alert("Erro", "Não foi possível carregar os dados do usuário.");
+      }
+    }
+  };
 
   const fetchBarbers = async () => {
     try {
@@ -85,11 +118,17 @@ export default function Appointment() {
   };
 
   useEffect(() => {
+    fetchUserData();
     fetchBarbers();
   }, []);
 
   const onSubmit = async (data: FormData) => {
     try {
+      if (!userId) {
+        Alert.alert('Erro', 'Usuário não identificado. Faça login novamente.');
+        return;
+      }
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const selectedDate = new Date(data.dayAt);
