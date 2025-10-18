@@ -24,6 +24,7 @@ export default function RootLayout() {
         <Stack.Screen name="(appointment)/successschedule/page" options={{headerShown: false}}/>
         <Stack.Screen name="(appointment)/detailsuser/[id]" options={{headerShown: false}}/>
         <Stack.Screen name="(appointment)/detailsbarber/[id]" options={{headerShown: false}}/>
+        <Stack.Screen name="(appointment)/add-availability/page" options={{headerShown: false}}/>
       </Stack>
 
       <StatusBar style="light" />

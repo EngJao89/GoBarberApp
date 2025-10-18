@@ -77,6 +77,7 @@ export default function BarberList() {
 
       setBarberAvailability(sortedData);
     } catch (error: any) {
+      console.error("Erro ao carregar os horários de trabalho:", error);
       Alert.alert("Erro ao carregar os horários de trabalho.");
     }
   }, []);
@@ -98,6 +99,7 @@ export default function BarberList() {
 
       setConfirmedSchedulings(todaySchedulings);
     } catch (error) {
+      console.error("Erro ao carregar agendamentos confirmados:", error);
       Alert.alert("Erro", "Não foi possível carregar os agendamentos confirmados.");
     } finally {
       setIsLoading(false);
@@ -158,12 +160,16 @@ export default function BarberList() {
         <View style={styles.container}>
           <Text style={styles.listTitle}>Agendamentos Confirmados</Text>
 
-          {isLoading ? (
-            <Text style={styles.loadingText}>Carregando...</Text>
-          ) : confirmedSchedulings.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhum agendamento confirmado para hoje</Text>
-          ) : (
-            confirmedSchedulings.map(scheduling => (
+          {(() => {
+            if (isLoading) {
+              return <Text style={styles.loadingText}>Carregando...</Text>;
+            }
+            
+            if (confirmedSchedulings.length === 0) {
+              return <Text style={styles.emptyText}>Nenhum agendamento confirmado para hoje</Text>;
+            }
+            
+            return confirmedSchedulings.map(scheduling => (
               <NotificationCard
                 key={scheduling.id}
                 id={scheduling.id}
@@ -172,13 +178,21 @@ export default function BarberList() {
                 serviceType={scheduling.serviceType}
                 clientName={scheduling.user?.name || "Cliente"}
                 avatarUrl={scheduling.user?.avatarUrl}
-                onAccept={() => {}} // Função vazia para agendamentos confirmados
-                onReject={() => {}} // Função vazia para agendamentos confirmados
+                onAccept={() => {}}
+                onReject={() => {}} 
               />
-            ))
-          )}
+            ));
+          })()}
 
-          <Text style={styles.listTitle}>Horários de Trabalho</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.listTitle}>Horários de Trabalho</Text>
+            <TouchableOpacity 
+              style={styles.addButton}
+              onPress={() => router.push('(appointment)/add-availability/page' as any)}
+            >
+              <Text style={styles.addButtonText}>+ Adicionar</Text>
+            </TouchableOpacity>
+          </View>
 
           {barberAvailability
             .filter((availability) => availability.barberId === barberData?.id)
@@ -246,5 +260,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 16,
     fontStyle: 'italic',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  addButton: {
+    backgroundColor: Colors.orange_600,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: Colors.zinc_100,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
