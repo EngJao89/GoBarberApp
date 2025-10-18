@@ -65,15 +65,18 @@ export default function BarberList() {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
 
-      const todayAvailability = dataWithDates.filter(availability => {
+      const upcomingAvailability = dataWithDates.filter(availability => {
         const availabilityDate = new Date(availability.dayAt);
         const availabilityDateLocal = new Date(availabilityDate.getFullYear(), availabilityDate.getMonth(), availabilityDate.getDate());
         const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return availabilityDateLocal.getTime() === todayLocal.getTime();
+        const nextWeekLocal = new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
+        return availabilityDateLocal.getTime() >= todayLocal.getTime() && availabilityDateLocal.getTime() <= nextWeekLocal.getTime();
       });
 
-      const sortedData = todayAvailability.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      const sortedData = upcomingAvailability.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
 
       setBarberAvailability(sortedData);
     } catch (error: any) {
@@ -184,24 +187,32 @@ export default function BarberList() {
             ));
           })()}
 
-          <View style={styles.sectionHeader}>
-            <Text style={styles.listTitle}>Horários de Trabalho</Text>
-            <TouchableOpacity 
-              style={styles.addButton}
-              onPress={() => router.push('(appointment)/add-availability/page' as any)}
-            >
-              <Text style={styles.addButtonText}>+ Adicionar</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.listTitle}>Agendamentos a confirmar</Text>
 
-          {barberAvailability
-            .filter((availability) => availability.barberId === barberData?.id)
-            .map((availability) => (
+          {(() => {
+            const filteredAvailability = barberAvailability.filter((availability) => availability.barberId === barberData?.id);
+            console.log('🔍 Debug - Horários filtrados para o barbeiro:', filteredAvailability.length);
+            console.log('🔍 Debug - Dados filtrados:', filteredAvailability);
+            
+            if (filteredAvailability.length === 0) {
+              return <Text style={styles.emptyText}>Nenhum agendamento disponível</Text>;
+            }
+            
+            return filteredAvailability.map((availability) => (
               <CardBarber key={availability.id} barberScheduling={availability} />
-            ))
-          }
+            ));
+          })()}
         </View>
       </ScrollView>
+      
+      <View style={styles.footer}>
+        <TouchableOpacity 
+          style={styles.footerButton}
+          onPress={() => router.push('(appointment)/add-availability/page' as any)}
+        >
+          <Text style={styles.footerButtonText}>+ Adicionar Horário</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -261,21 +272,27 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     fontStyle: 'italic',
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  addButton: {
-    backgroundColor: Colors.orange_600,
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.zinc_800,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: Colors.zinc_700,
   },
-  addButtonText: {
+  footerButton: {
+    backgroundColor: Colors.orange_600,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  footerButtonText: {
     color: Colors.zinc_100,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
