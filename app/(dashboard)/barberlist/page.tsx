@@ -92,15 +92,36 @@ export default function BarberList() {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
 
-      const todaySchedulings = schedulings.filter(scheduling => {
+      const upcomingSchedulings = schedulings.filter(scheduling => {
         const schedulingDate = new Date(scheduling.dayAt);
         const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
         const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return schedulingDateLocal.getTime() === todayLocal.getTime();
+        const nextWeekLocal = new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
+        return schedulingDateLocal.getTime() >= todayLocal.getTime() && schedulingDateLocal.getTime() <= nextWeekLocal.getTime();
       });
 
-      setPendingSchedulings(todaySchedulings);
+      const schedulingsWithUserData = await Promise.all(
+        upcomingSchedulings.map(async (scheduling) => {
+          try {
+            const userResponse = await api.get(`users/${scheduling.userId}`);
+            return {
+              ...scheduling,
+              user: userResponse.data
+            };
+          } catch (error) {
+            console.error(`Erro ao buscar dados do usuário ${scheduling.userId}:`, error);
+            return {
+              ...scheduling,
+              user: { name: "Cliente", email: "", phone: "" }
+            };
+          }
+        })
+      );
+
+      setPendingSchedulings(schedulingsWithUserData);
     } catch (error) {
       console.error("Erro ao carregar agendamentos pendentes:", error);
       Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
@@ -224,19 +245,21 @@ export default function BarberList() {
               return <Text style={styles.emptyText}>Nenhum agendamento pendente para hoje</Text>;
             }
             
-            return pendingSchedulings.map(scheduling => (
-              <NotificationCard
-                key={scheduling.id}
-                id={scheduling.id}
-                date={formatDate(scheduling.dayAt)}
-                time={scheduling.hourAt}
-                serviceType={scheduling.serviceType}
-                clientName={scheduling.user?.name || "Cliente"}
-                avatarUrl={scheduling.user?.avatarUrl}
-                onAccept={() => handleAcceptAppointment(scheduling.id)}
-                onReject={() => handleRejectAppointment(scheduling.id)}
-              />
-            ));
+            return pendingSchedulings.map(scheduling => {
+              return (
+                <NotificationCard
+                  key={scheduling.id}
+                  id={scheduling.id}
+                  date={formatDate(scheduling.dayAt)}
+                  time={scheduling.hourAt}
+                  serviceType={scheduling.serviceType}
+                  clientName={scheduling.user?.name || "Cliente"}
+                  avatarUrl={scheduling.user?.avatarUrl}
+                  onAccept={() => handleAcceptAppointment(scheduling.id)}
+                  onReject={() => handleRejectAppointment(scheduling.id)}
+                />
+              );
+            });
           })()}
 
           <Text style={styles.listTitle}>Agendamentos Confirmados</Text>

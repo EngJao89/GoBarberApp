@@ -40,20 +40,11 @@ function createEnvFile(env) {
 
   fs.writeFileSync(ENV_FILE, envContent);
   fs.writeFileSync(ENV_LOCAL_FILE, envContent);
-
-  console.log(`✅ Ambiente alterado para: ${env.toUpperCase()}`);
-  console.log(`🌐 API URL: ${config.EXPO_PUBLIC_API_URL}`);
-  console.log(`🐛 Debug: ${config.EXPO_PUBLIC_DEBUG}`);
 }
 
 const env = process.argv[2];
 
 if (!env || !environments[env]) {
-  console.log('📋 Uso: node scripts/switch-env.js <dev|prod>');
-  console.log('');
-  console.log('Exemplos:');
-  console.log('  node scripts/switch-env.js dev   # Desenvolvimento');
-  console.log('  node scripts/switch-env.js prod  # Produção');
   process.exit(1);
 }
 

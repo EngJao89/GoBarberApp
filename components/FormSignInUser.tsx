@@ -50,7 +50,6 @@ export function FormSignInUser() {
         return;
       }
 
-      console.log('🔐 Tentando login com:', { email: data.email, passwordLength: data.password.length });
       const response = await api.post('auth-user/login', data, { withCredentials: true });
 
       if (response.data.accessToken) {

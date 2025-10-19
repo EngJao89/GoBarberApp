@@ -48,13 +48,6 @@ const getEnvironment = () => {
 
   const customEnv = Constants.expoConfig?.extra?.environment || process.env.EXPO_PUBLIC_ENVIRONMENT;
 
-  if (__DEV__) {
-    console.log('🔍 Debug - customEnv detectado:', customEnv);
-    console.log('🔍 Debug - Constants.expoConfig?.extra?.environment:', Constants.expoConfig?.extra?.environment);
-    console.log('🔍 Debug - process.env.EXPO_PUBLIC_ENVIRONMENT:', process.env.EXPO_PUBLIC_ENVIRONMENT);
-    console.log('🔍 Debug - Constants.expoConfig?.extra:', Constants.expoConfig?.extra);
-  }
-  
   if (customEnv === 'production') {
     return 'production';
   }
@@ -82,9 +75,3 @@ switch (environment) {
 
 export { ENV_CONFIG };
 export type EnvConfig = typeof ENV_CONFIG;
-
-if (__DEV__) {
-  console.log(`🔧 Ambiente: ${ENV_CONFIG.ENVIRONMENT}`);
-  console.log(`🌐 API URL: ${ENV_CONFIG.API_BASE_URL}`);
-  console.log(`🐛 Debug: ${ENV_CONFIG.DEBUG}`);
-}
