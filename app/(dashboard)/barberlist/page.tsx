@@ -16,7 +16,7 @@ import { router, useFocusEffect } from "expo-router";
 import api from "@/lib/axios";
 import { BarberAvailabilityData, BarberData } from "@/@types/barber";
 import { Colors } from "@/constants/Colors";
-import { fetchConfirmedSchedulings } from "@/services/schedulingService";
+import { fetchConfirmedSchedulings, fetchPendingSchedulings } from "@/services/schedulingService";
 import { CardBarber } from "@/components/CardBarber";
 import { NotificationCard } from "@/components/NotificationCard";
 
@@ -24,6 +24,7 @@ export default function BarberList() {
   const [barberData, setBarberData] = useState<BarberData | null>(null);
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailabilityData[]>([]);
   const [confirmedSchedulings, setConfirmedSchedulings] = useState<any[]>([]);
+  const [pendingSchedulings, setPendingSchedulings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchBarberData = useCallback(async () => {
@@ -85,6 +86,27 @@ export default function BarberList() {
     }
   }, []);
 
+  const fetchPendingAppointments = useCallback(async (barberId: string) => {
+    try {
+      const schedulings = await fetchPendingSchedulings(barberId);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todaySchedulings = schedulings.filter(scheduling => {
+        const schedulingDate = new Date(scheduling.dayAt);
+        const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
+        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return schedulingDateLocal.getTime() === todayLocal.getTime();
+      });
+
+      setPendingSchedulings(todaySchedulings);
+    } catch (error) {
+      console.error("Erro ao carregar agendamentos pendentes:", error);
+      Alert.alert("Erro", "Não foi possível carregar os agendamentos pendentes.");
+    }
+  }, []);
+
   const fetchConfirmedAppointments = useCallback(async (barberId: string) => {
     try {
       setIsLoading(true);
@@ -110,6 +132,34 @@ export default function BarberList() {
   }, []);
 
 
+  const handleAcceptAppointment = async (schedulingId: string) => {
+    try {
+      await api.patch(`scheduling/${schedulingId}`, { status: 'confirmado' });
+      Alert.alert("Sucesso", "Agendamento confirmado com sucesso!");
+      if (barberData) {
+        await fetchPendingAppointments(barberData.id);
+        await fetchConfirmedAppointments(barberData.id);
+      }
+    } catch (error) {
+      console.error("Erro ao confirmar agendamento:", error);
+      Alert.alert("Erro", "Não foi possível confirmar o agendamento.");
+    }
+  };
+
+  const handleRejectAppointment = async (schedulingId: string) => {
+    try {
+      await api.patch(`scheduling/${schedulingId}`, { status: 'cancelado' });
+      Alert.alert("Sucesso", "Agendamento cancelado com sucesso!");
+      if (barberData) {
+        await fetchPendingAppointments(barberData.id);
+        await fetchConfirmedAppointments(barberData.id);
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar agendamento:", error);
+      Alert.alert("Erro", "Não foi possível cancelar o agendamento.");
+    }
+  };
+
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authBarberToken');
     router.replace('/');
@@ -120,6 +170,7 @@ export default function BarberList() {
       try {
         const barberId = await fetchBarberData();
         if (barberId) {
+          await fetchPendingAppointments(barberId);
           await fetchConfirmedAppointments(barberId);
         }
       } catch (error) {
@@ -133,6 +184,7 @@ export default function BarberList() {
   useFocusEffect(
     useCallback(() => {
       if (barberData) {
+        fetchPendingAppointments(barberData.id);
         fetchConfirmedAppointments(barberData.id);
         fetchBarberAvailability();
       }
@@ -161,6 +213,32 @@ export default function BarberList() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
+          <Text style={styles.listTitle}>Agendamentos Pendentes</Text>
+
+          {(() => {
+            if (isLoading) {
+              return <Text style={styles.loadingText}>Carregando...</Text>;
+            }
+            
+            if (pendingSchedulings.length === 0) {
+              return <Text style={styles.emptyText}>Nenhum agendamento pendente para hoje</Text>;
+            }
+            
+            return pendingSchedulings.map(scheduling => (
+              <NotificationCard
+                key={scheduling.id}
+                id={scheduling.id}
+                date={formatDate(scheduling.dayAt)}
+                time={scheduling.hourAt}
+                serviceType={scheduling.serviceType}
+                clientName={scheduling.user?.name || "Cliente"}
+                avatarUrl={scheduling.user?.avatarUrl}
+                onAccept={() => handleAcceptAppointment(scheduling.id)}
+                onReject={() => handleRejectAppointment(scheduling.id)}
+              />
+            ));
+          })()}
+
           <Text style={styles.listTitle}>Agendamentos Confirmados</Text>
 
           {(() => {
@@ -187,17 +265,15 @@ export default function BarberList() {
             ));
           })()}
 
-          <Text style={styles.listTitle}>Agendamentos a confirmar</Text>
+          <Text style={styles.listTitle}>Agenda de Trabalho</Text>
 
           {(() => {
             const filteredAvailability = barberAvailability.filter((availability) => availability.barberId === barberData?.id);
-            console.log('🔍 Debug - Horários filtrados para o barbeiro:', filteredAvailability.length);
-            console.log('🔍 Debug - Dados filtrados:', filteredAvailability);
-            
+
             if (filteredAvailability.length === 0) {
               return <Text style={styles.emptyText}>Nenhum agendamento disponível</Text>;
             }
-            
+
             return filteredAvailability.map((availability) => (
               <CardBarber key={availability.id} barberScheduling={availability} />
             ));
