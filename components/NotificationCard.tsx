@@ -13,8 +13,10 @@ export function NotificationCard({
   clientName,
   avatarUrl, 
   onAccept, 
-  onReject 
-}: NotificationCardProps) {
+  onReject,
+  status
+}: Readonly<NotificationCardProps>) {
+  const isConfirmed = status === 'confirmado';
   return (
     <Pressable style={styles.container}>
       {avatarUrl ? (
@@ -44,18 +46,27 @@ export function NotificationCard({
 
       <View style={styles.actions}>
         <TouchableOpacity 
-          activeOpacity={0.5} 
-          style={styles.button}
-          onPress={() => onAccept(id)}
+          activeOpacity={isConfirmed ? 1 : 0.5} 
+          style={[styles.button, isConfirmed && styles.disabledButton]}
+          onPress={isConfirmed ? undefined : () => onAccept(id)}
+          disabled={isConfirmed}
         >
-          <Ionicons name="checkmark-outline" size={20} color={Colors.success} />
+          <Ionicons 
+            name="checkmark-outline" 
+            size={20} 
+            color={isConfirmed ? Colors.zinc_500 : Colors.success} 
+          />
         </TouchableOpacity>
 
         <TouchableOpacity 
           activeOpacity={0.5}
           onPress={() => onReject(id)}
         >
-          <Ionicons name="close-outline" size={20} color={Colors.red_600}/>
+          <Ionicons 
+            name="close-outline" 
+            size={20} 
+            color={Colors.red_600}
+          />
         </TouchableOpacity>
       </View>
     </Pressable>
@@ -120,5 +131,8 @@ const styles = StyleSheet.create({
   },
   button: {
     marginRight: 16,
+  },
+  disabledButton: {
+    opacity: 0.5,
   }
 });

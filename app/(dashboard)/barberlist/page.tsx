@@ -100,7 +100,9 @@ export default function BarberList() {
         const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
         const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const nextWeekLocal = new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
-        return schedulingDateLocal.getTime() >= todayLocal.getTime() && schedulingDateLocal.getTime() <= nextWeekLocal.getTime();
+        return schedulingDateLocal.getTime() >= todayLocal.getTime() && 
+               schedulingDateLocal.getTime() <= nextWeekLocal.getTime() &&
+               scheduling.status === 'pendente';
       });
 
       const schedulingsWithUserData = await Promise.all(
@@ -135,15 +137,36 @@ export default function BarberList() {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
 
-      const todaySchedulings = schedulings.filter(scheduling => {
+      const upcomingSchedulings = schedulings.filter(scheduling => {
         const schedulingDate = new Date(scheduling.dayAt);
         const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
         const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return schedulingDateLocal.getTime() === todayLocal.getTime();
+        const nextWeekLocal = new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
+        return schedulingDateLocal.getTime() >= todayLocal.getTime() && schedulingDateLocal.getTime() <= nextWeekLocal.getTime();
       });
 
-      setConfirmedSchedulings(todaySchedulings);
+      const schedulingsWithUserData = await Promise.all(
+        upcomingSchedulings.map(async (scheduling) => {
+          try {
+            const userResponse = await api.get(`users/${scheduling.userId}`);
+            return {
+              ...scheduling,
+              user: userResponse.data
+            };
+          } catch (error) {
+            console.error(`Erro ao buscar dados do usuário ${scheduling.userId}:`, error);
+            return {
+              ...scheduling,
+              user: { name: "Cliente", email: "", phone: "" }
+            };
+          }
+        })
+      );
+
+      setConfirmedSchedulings(schedulingsWithUserData);
     } catch (error) {
       console.error("Erro ao carregar agendamentos confirmados:", error);
       Alert.alert("Erro", "Não foi possível carregar os agendamentos confirmados.");
@@ -257,6 +280,7 @@ export default function BarberList() {
                   avatarUrl={scheduling.user?.avatarUrl}
                   onAccept={() => handleAcceptAppointment(scheduling.id)}
                   onReject={() => handleRejectAppointment(scheduling.id)}
+                  status={scheduling.status}
                 />
               );
             });
@@ -273,19 +297,22 @@ export default function BarberList() {
               return <Text style={styles.emptyText}>Nenhum agendamento confirmado para hoje</Text>;
             }
             
-            return confirmedSchedulings.map(scheduling => (
-              <NotificationCard
-                key={scheduling.id}
-                id={scheduling.id}
-                date={formatDate(scheduling.dayAt)}
-                time={scheduling.hourAt}
-                serviceType={scheduling.serviceType}
-                clientName={scheduling.user?.name || "Cliente"}
-                avatarUrl={scheduling.user?.avatarUrl}
-                onAccept={() => {}}
-                onReject={() => {}} 
-              />
-            ));
+            return confirmedSchedulings
+              .filter(scheduling => scheduling.status === 'confirmado')
+              .map(scheduling => (
+                <NotificationCard
+                  key={scheduling.id}
+                  id={scheduling.id}
+                  date={formatDate(scheduling.dayAt)}
+                  time={scheduling.hourAt}
+                  serviceType={scheduling.serviceType}
+                  clientName={scheduling.user?.name || "Cliente"}
+                  avatarUrl={scheduling.user?.avatarUrl}
+                  onAccept={() => {}} 
+                  onReject={() => {}}
+                  status={scheduling.status}
+                />
+              ));
           })()}
 
           <Text style={styles.listTitle}>Agenda de Trabalho</Text>
