@@ -7,4 +7,5 @@ export interface NotificationCardProps {
   avatarUrl?: string;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
+  status?: string;
 }
