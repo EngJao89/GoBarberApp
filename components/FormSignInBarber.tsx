@@ -101,6 +101,13 @@ export function FormSignInBarber() {
       <TouchableOpacity activeOpacity={0.5} style={styles.forgot}>
         <Text style={styles.textGhost}>Esqueci minha senha</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push('/')} style={styles.forgot}>
+        <Ionicons name="enter-outline" size={16} style={styles.forgotIcon}/>
+        <Text style={styles.textForgot}>
+          Ir para área de usuários
+        </Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -144,6 +151,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   textGhost: {
+    color: Colors.zinc_50,
+    fontWeight: "bold",
+  },
+  forgotIcon: {
+    color: Colors.zinc_50,
+    marginRight: 8,
+  },
+  textForgot: {
     color: Colors.zinc_50,
     fontWeight: "bold",
   },
