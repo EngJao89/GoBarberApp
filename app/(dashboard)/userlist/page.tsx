@@ -39,12 +39,18 @@ export default function UserList() {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const sortedData = dataWithDates.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
+      const futureSchedulings = dataWithDates.filter(scheduling => {
+        const schedulingDate = new Date(scheduling.dayAt);
+        const schedulingDateLocal = new Date(schedulingDate.getFullYear(), schedulingDate.getMonth(), schedulingDate.getDate());
+        const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return schedulingDateLocal.getTime() >= todayLocal.getTime();
+      });
+
+      const sortedData = futureSchedulings.sort((a, b) => a.dayAt.getTime() - b.dayAt.getTime());
       setSchedulingData(sortedData);
     } catch (error: any) {
+      console.error("Erro ao carregar os agendamentos:", error);
       Alert.alert("Erro ao carregar os agendamentos.");
     }
   }, []);
@@ -141,13 +147,12 @@ export default function UserList() {
       </View>
       <View style={styles.container}>
         <View style={styles.navTitle}>
-          <Text style={styles.listTitle}>Cabelereiros</Text>
+          <Text style={styles.listTitle}>Agendamentos</Text>
 
           <TouchableOpacity onPress={() => router.push("/(appointment)/new/page")}>
             <Ionicons name="reader-sharp" size={28} style={styles.icon}/>
           </TouchableOpacity>
         </View>
-        
 
         <ScrollView showsVerticalScrollIndicator={false}>
           {filteredData.length > 0 ? (
