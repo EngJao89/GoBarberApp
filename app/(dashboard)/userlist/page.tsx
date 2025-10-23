@@ -147,7 +147,7 @@ export default function UserList() {
       </View>
       <View style={styles.container}>
         <View style={styles.navTitle}>
-          <Text style={styles.listTitle}>Agendamentos</Text>
+          <Text style={styles.listTitle}>Agendamentos Próximos</Text>
 
           <TouchableOpacity onPress={() => router.push("/(appointment)/new/page")}>
             <Ionicons name="reader-sharp" size={28} style={styles.icon}/>
