@@ -89,6 +89,8 @@ export function FormRegisterUser() {
               value={value} 
               onChangeText={onChange} 
               style={styles.input}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
         )}

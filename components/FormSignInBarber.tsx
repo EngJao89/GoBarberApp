@@ -73,7 +73,9 @@ export function FormSignInBarber() {
           placeholderTextColor={Colors.zinc_500} 
           onChangeText={(text) => setValue('email', text)} 
           value={watch("email")}  
-          style={styles.input} 
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
       </View>
       
