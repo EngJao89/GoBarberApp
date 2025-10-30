@@ -204,6 +204,20 @@ export default function BarberList() {
     }
   };
 
+  const handleFinishAppointment = async (schedulingId: string) => {
+    try {
+      await api.patch(`scheduling/${schedulingId}`, { status: 'finalizado' });
+      Alert.alert("Sucesso", "Atendimento finalizado com sucesso!");
+      if (barberData) {
+        await fetchPendingAppointments(barberData.id);
+        await fetchConfirmedAppointments(barberData.id);
+      }
+    } catch (error) {
+      console.error("Erro ao finalizar agendamento:", error);
+      Alert.alert("Erro", "Não foi possível finalizar o atendimento.");
+    }
+  };
+
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authBarberToken');
     router.replace('/');
@@ -311,6 +325,8 @@ export default function BarberList() {
                   onAccept={() => {}} 
                   onReject={() => {}}
                   status={scheduling.status}
+                  canFinish
+                  onFinish={handleFinishAppointment}
                 />
               ));
           })()}

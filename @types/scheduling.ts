@@ -15,7 +15,7 @@ export interface SchedulingData {
   dayAt: Date;
   hourAt: string;
   serviceType: string;
-  status: 'pendente' | 'confirmado' | 'cancelado';
+  status: 'pendente' | 'confirmado' | 'cancelado' | 'finalizado';
   createdAt: string;
   updatedAt: string;
   user?: {

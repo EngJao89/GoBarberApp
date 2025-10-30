@@ -1,5 +1,6 @@
 
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/Colors";
@@ -14,11 +15,16 @@ export function NotificationCard({
   avatarUrl, 
   onAccept, 
   onReject,
-  status
+  status,
+  onFinish,
+  canFinish
 }: Readonly<NotificationCardProps>) {
   const isConfirmed = status === 'confirmado';
   return (
-    <Pressable style={styles.container}>
+    <Pressable 
+      style={styles.container}
+      onPress={() => router.push(`/(appointment)/detailsuser/${id}`)}
+    >
       {avatarUrl ? (
         <Image source={{ uri: avatarUrl }} style={styles.avatar} />
       ) : (
@@ -57,6 +63,19 @@ export function NotificationCard({
             color={isConfirmed ? Colors.zinc_500 : Colors.success} 
           />
         </TouchableOpacity>
+
+        {canFinish && isConfirmed && (
+          <TouchableOpacity 
+            activeOpacity={0.5}
+            onPress={() => onFinish && onFinish(id)}
+          >
+            <Ionicons 
+              name="checkmark-done-outline" 
+              size={20} 
+              color={Colors.success}
+            />
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity 
           activeOpacity={0.5}
