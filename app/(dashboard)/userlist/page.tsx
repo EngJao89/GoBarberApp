@@ -113,7 +113,8 @@ export default function UserList() {
       if (isFirstMount.current || !userData) {
         return;
       }
-    }, [userData])
+      fetchScheduling();
+    }, [userData, fetchScheduling])
   );
 
   if (isLoading && !userData && schedulingData.length === 0) {
