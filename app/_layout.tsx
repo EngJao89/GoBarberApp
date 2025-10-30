@@ -6,7 +6,12 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack>
+      <Stack
+        screenOptions={{
+          animation: 'none',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      >
         <Stack.Screen name="index" options={{headerShown: false}}/>
 
         <Stack.Screen name="(auth)/registeruser/page" options={{headerShown: false}}/>
@@ -17,6 +22,7 @@ export default function RootLayout() {
 
         <Stack.Screen name="(dashboard)/barberlist/page" options={{headerShown: false}}/>
         <Stack.Screen name="(dashboard)/userlist/page" options={{headerShown: false}}/>
+        <Stack.Screen name="(dashboard)/history-user/page" options={{headerShown: false}}/>
         <Stack.Screen name="(dashboard)/profileuser/[id]" options={{headerShown: false}}/>
         <Stack.Screen name="(dashboard)/profilebarber/[id]" options={{headerShown: false}}/>
 

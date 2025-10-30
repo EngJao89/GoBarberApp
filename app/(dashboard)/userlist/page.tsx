@@ -9,7 +9,7 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +27,7 @@ export default function UserList() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [schedulingData, setSchedulingData] = useState<SchedulingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isFirstMount = useRef(true);
 
   const fetchScheduling = useCallback(async () => {
     try {
@@ -100,25 +101,29 @@ export default function UserList() {
         console.error(error);
       } finally {
         setIsLoading(false);
+        isFirstMount.current = false;
       }
     }
 
     fetchData();
-  }, []);
+  }, [fetchScheduling]);
 
   useFocusEffect(
     useCallback(() => {
+      if (isFirstMount.current || !userData) {
+        return;
+      }
       fetchScheduling();
-    }, [])
+    }, [userData, fetchScheduling])
   );
 
-  if (isLoading) {
+  if (isLoading && !userData && schedulingData.length === 0) {
     return (
       <Loading />
     );
   }
 
-  if (!userData || !schedulingData) {
+  if (!userData) {
     return (<NotFound />);
   }
 
@@ -149,9 +154,14 @@ export default function UserList() {
         <View style={styles.navTitle}>
           <Text style={styles.listTitle}>Agendamentos Próximos</Text>
 
-          <TouchableOpacity onPress={() => router.push("/(appointment)/new/page")}>
-            <Ionicons name="reader-sharp" size={28} style={styles.icon}/>
-          </TouchableOpacity>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity onPress={() => router.push("/(appointment)/new/page")}>
+              <Ionicons name="reader-sharp" size={28} style={styles.icon}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/(dashboard)/history-user/page")} style={styles.secondIconButton}>
+              <Ionicons name="time-outline" size={28} style={styles.icon}/>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -206,18 +216,26 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: Colors.zinc_400,
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  secondIconButton: {
     marginRight: 24,
   },
   listTitle: {
     color: Colors.zinc_100,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 36,
     marginLeft: 24,
   },
   navTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 36,
   },
   profile: {
     width: 56,
