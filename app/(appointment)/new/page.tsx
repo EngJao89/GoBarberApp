@@ -10,7 +10,7 @@ import {
   TouchableOpacity, 
   View 
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,7 +20,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import api from "@/lib/axios";
-import { Scheduling } from "@/@types/scheduling";
+import { Scheduling, SchedulingData } from "@/@types/scheduling";
 import { BarberData } from "@/@types/barber";
 import { FormData } from "@/@types/form";
 import { Colors } from "@/constants/Colors";
@@ -65,6 +65,7 @@ export default function Appointment() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [barbers, setBarbers] = useState<BarberData[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
+  const [unavailableHours, setUnavailableHours] = useState<Set<string>>(new Set());
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -122,6 +123,41 @@ export default function Appointment() {
     fetchBarbers();
   }, []);
 
+  const fetchUnavailableHours = useCallback(async (barberId?: string, date?: Date) => {
+    try {
+      const bId = barberId ?? selectedBarber ?? '';
+      const d = date ?? selectedDate;
+      if (!bId || !d) return;
+
+      const response = await api.get<SchedulingData[]>('scheduling/', {
+        params: { barberId: bId }
+      });
+
+      const targetDayLocal = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+      const hours = new Set<string>();
+      response.data.forEach(s => {
+        const sDate = typeof s.dayAt === 'string' ? new Date(s.dayAt) : s.dayAt;
+        const sDayLocal = new Date(sDate.getFullYear(), sDate.getMonth(), sDate.getDate()).getTime();
+        const isSameDay = sDayLocal === targetDayLocal;
+        const isActive = s.status === 'pendente' || s.status === 'confirmado';
+        if (isSameDay && isActive) {
+          hours.add(s.hourAt);
+        }
+      });
+
+      setUnavailableHours(hours);
+    } catch (error) {
+      setUnavailableHours(new Set());
+    }
+  }, [selectedBarber, selectedDate]);
+
+  useEffect(() => {
+    if (selectedBarber) {
+      fetchUnavailableHours(selectedBarber, selectedDate);
+    }
+  }, [selectedBarber, selectedDate, fetchUnavailableHours]);
+
   const onSubmit = async (data: FormData) => {
     try {
       if (!userId) {
@@ -142,6 +178,41 @@ export default function Appointment() {
       const [hours, minutes] = data.hourAt.split(':');
       const dayAt = new Date(data.dayAt);
       dayAt.setHours(parseInt(hours), parseInt(minutes));
+
+      const conflictsResponse = await api.get<SchedulingData[]>('scheduling/', {
+        params: { barberId: data.barberId }
+      });
+
+      const selectedDayLocal = new Date(dayAt.getFullYear(), dayAt.getMonth(), dayAt.getDate()).getTime();
+
+      const hasConflict = conflictsResponse.data.some((s) => {
+        const sDate = typeof s.dayAt === 'string' ? new Date(s.dayAt) : s.dayAt;
+        const sDayLocal = new Date(sDate.getFullYear(), sDate.getMonth(), sDate.getDate()).getTime();
+        const isSameDay = sDayLocal === selectedDayLocal;
+        const isSameHour = s.hourAt === data.hourAt;
+        const isActive = s.status === 'pendente' || s.status === 'confirmado';
+        return isSameDay && isSameHour && isActive;
+      });
+
+      if (hasConflict) {
+        Alert.alert('Horário indisponível', 'Já existe um agendamento para este horário. Escolha outro.');
+        return;
+      }
+
+      const userSchedResp = await api.get<SchedulingData[]>('scheduling/', { params: { userId } });
+      const userConflict = userSchedResp.data.some((s) => {
+        const sDate = typeof s.dayAt === 'string' ? new Date(s.dayAt) : s.dayAt;
+        const sDayLocal = new Date(sDate.getFullYear(), sDate.getMonth(), sDate.getDate()).getTime();
+        const isSameDay = sDayLocal === selectedDayLocal;
+        const isSameHour = s.hourAt === data.hourAt;
+        const isActive = s.status === 'pendente' || s.status === 'confirmado';
+        return isSameDay && isSameHour && isActive;
+      });
+
+      if (userConflict) {
+        Alert.alert('Conflito de agenda', 'Você já possui um agendamento neste mesmo horário.');
+        return;
+      }
 
       const schedulingData: Omit<Scheduling, 'id'> = {
         userId,
@@ -250,15 +321,24 @@ export default function Appointment() {
                 name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
-                    {morningHours.map((time, index) => (
+                    {morningHours.map((time, index) => {
+                      const isDisabled = unavailableHours.has(time);
+                      return (
                       <TouchableOpacity
                         key={index}
-                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        style={[
+                          styles.sectionButton,
+                          value === time && styles.selectedButton,
+                          isDisabled && styles.disabledSectionButton,
+                        ]}
+                        disabled={isDisabled}
+                        activeOpacity={isDisabled ? 1 : 0.7}
                         onPress={() => onChange(time)}
                       >
                         <Text style={styles.buttonText}>{time}</Text>
                       </TouchableOpacity>
-                    ))}
+                      );
+                    })}
                   </>
                 )}
               />
@@ -277,15 +357,24 @@ export default function Appointment() {
                 name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
-                    {afternoonHours.map((time, index) => (
+                    {afternoonHours.map((time, index) => {
+                      const isDisabled = unavailableHours.has(time);
+                      return (
                       <TouchableOpacity
                         key={index}
-                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        style={[
+                          styles.sectionButton,
+                          value === time && styles.selectedButton,
+                          isDisabled && styles.disabledSectionButton,
+                        ]}
+                        disabled={isDisabled}
+                        activeOpacity={isDisabled ? 1 : 0.7}
                         onPress={() => onChange(time)}
                       >
                         <Text style={styles.buttonText}>{time}</Text>
                       </TouchableOpacity>
-                    ))}
+                      );
+                    })}
                   </>
                 )}
               />
@@ -304,15 +393,24 @@ export default function Appointment() {
                 name="hourAt"
                 render={({ field: { onChange, value } }) => (
                   <>
-                    {eveningHours.map((time, index) => (
+                    {eveningHours.map((time, index) => {
+                      const isDisabled = unavailableHours.has(time);
+                      return (
                       <TouchableOpacity
                         key={index}
-                        style={[styles.sectionButton, value === time && styles.selectedButton]}
+                        style={[
+                          styles.sectionButton,
+                          value === time && styles.selectedButton,
+                          isDisabled && styles.disabledSectionButton,
+                        ]}
+                        disabled={isDisabled}
+                        activeOpacity={isDisabled ? 1 : 0.7}
                         onPress={() => onChange(time)}
                       >
                         <Text style={styles.buttonText}>{time}</Text>
                       </TouchableOpacity>
-                    ))}
+                      );
+                    })}
                   </>
                 )}
               />
@@ -463,6 +561,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  disabledSectionButton: {
+    backgroundColor: Colors.zinc_800,
   },
   buttonText: {
     color: Colors.zinc_100,
