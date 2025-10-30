@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
+import { StatusBar, Platform } from 'react-native';
 import 'react-native-reanimated';
+import { Colors } from '@/constants/Colors';
 
 export default function RootLayout() {
 
@@ -33,7 +35,14 @@ export default function RootLayout() {
         <Stack.Screen name="(appointment)/add-availability/page" options={{headerShown: false}}/>
       </Stack>
 
-      <StatusBar style="light" />
+      {Platform.OS === 'android' && (
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={Colors.zinc_900}
+          translucent={false}
+        />
+      )}
+      <ExpoStatusBar style="light" />
     </>
   );
 }

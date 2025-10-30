@@ -113,6 +113,8 @@ export function FormProfileUser() {
               style={styles.input}
               value={value}
               onChangeText={onChange}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
         )} 

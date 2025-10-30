@@ -83,6 +83,8 @@ export function FormSignInUser() {
             onChangeText={(text) => setValue('email', text)}
             value={watch("email")}
             style={styles.input}
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
         </View>
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}

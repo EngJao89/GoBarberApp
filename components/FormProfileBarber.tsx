@@ -99,6 +99,8 @@ export function FormProfileBarber() {
               style={styles.input}
               value={value}
               onChangeText={onChange}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
         )}
