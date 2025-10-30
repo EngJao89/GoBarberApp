@@ -101,8 +101,8 @@ export default function BarberList() {
         const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const nextWeekLocal = new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
         return schedulingDateLocal.getTime() >= todayLocal.getTime() && 
-               schedulingDateLocal.getTime() <= nextWeekLocal.getTime() &&
-               scheduling.status === 'pendente';
+              schedulingDateLocal.getTime() <= nextWeekLocal.getTime() &&
+              scheduling.status === 'pendente';
       });
 
       const schedulingsWithUserData = await Promise.all(
