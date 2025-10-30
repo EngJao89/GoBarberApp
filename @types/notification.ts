@@ -8,4 +8,6 @@ export interface NotificationCardProps {
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
   status?: string;
+  onFinish?: (id: string) => void;
+  canFinish?: boolean;
 }

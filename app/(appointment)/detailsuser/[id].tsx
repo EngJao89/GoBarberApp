@@ -54,6 +54,8 @@ export default function AppointmentDetailsUser() {
     year: 'numeric',
   });
 
+  const isFinished = scheduling.status === 'finalizado';
+
   return(
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -87,12 +89,20 @@ export default function AppointmentDetailsUser() {
           <Text style={styles.detailText}>Status: {scheduling.status}</Text>
         </View>
 
-        <TouchableOpacity activeOpacity={0.7} style={styles.alterButton}>
-          <Text>Alterar Agendamento</Text>
+        <TouchableOpacity 
+          activeOpacity={isFinished ? 1 : 0.7} 
+          style={[styles.alterButton, isFinished && styles.disabledButton]}
+          disabled={isFinished}
+        >
+          <Text style={isFinished ? styles.disabledText : styles.buttonText}>Alterar Agendamento</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.7} style={styles.cancelButton}>
-          <Text>Cancelar Agendamento</Text>
+        <TouchableOpacity 
+          activeOpacity={isFinished ? 1 : 0.7} 
+          style={[styles.cancelButton, isFinished && styles.disabledButton]}
+          disabled={isFinished}
+        >
+          <Text style={isFinished ? styles.disabledText : styles.buttonText}>Cancelar Agendamento</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -158,5 +168,16 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderRadius: 8,
     alignItems: "center",
+  },
+  disabledButton: {
+    backgroundColor: Colors.zinc_600,
+  },
+  buttonText: {
+    color: Colors.zinc_100,
+    fontWeight: 'bold',
+  },
+  disabledText: {
+    color: Colors.zinc_400,
+    fontWeight: 'bold',
   },
 });

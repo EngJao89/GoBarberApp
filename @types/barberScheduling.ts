@@ -3,5 +3,6 @@ export interface BarberSchedulingData {
   barberId: string;
   dayAt: string;
   startTime: string;
-  endTime: string
+  endTime: string;
+  status?: 'pendente' | 'confirmado' | 'cancelado' | 'finalizado';
 }

@@ -18,7 +18,7 @@ import { Colors } from "@/constants/Colors";
 import { Loading } from "@/components/Loading";
 import { NotFound } from "@/components/NotFound";
 
-export default function  AppointmentDetailsUser(){
+export default function  AppointmentDetailsBarber(){
   const [loading, setLoading] = useState(true);
   const [barberScheduling, setBarberScheduling] = useState<BarberSchedulingData | null>(null);
   const { id } = useLocalSearchParams();
@@ -63,6 +63,8 @@ export default function  AppointmentDetailsUser(){
     year: 'numeric',
   });
 
+  const isFinished = barberScheduling.status === 'finalizado';
+
   return(
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -88,15 +90,30 @@ export default function  AppointmentDetailsUser(){
 
         <View style={styles.detailItem}>
           <Ionicons name="time-outline" size={24} color={Colors.orange_700} />
-          <Text style={styles.detailText}>Inicia: {barberScheduling.endTime}</Text>
+          <Text style={styles.detailText}>Termina: {barberScheduling.endTime}</Text>
         </View>
 
-        <TouchableOpacity activeOpacity={0.7} style={styles.alterButton}>
-          <Text>Alterar Horários</Text>
+        {barberScheduling.status && (
+          <View style={styles.detailItem}>
+            <Ionicons name="information-circle-outline" size={24} color={Colors.orange_700} />
+            <Text style={styles.detailText}>Status: {barberScheduling.status}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity 
+          activeOpacity={isFinished ? 1 : 0.7} 
+          style={[styles.alterButton, isFinished && styles.disabledButton]}
+          disabled={isFinished}
+        >
+          <Text style={isFinished ? styles.disabledText : styles.buttonText}>Alterar Horários</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.7} style={styles.cancelButton}>
-          <Text>Cancelar Horários</Text>
+        <TouchableOpacity 
+          activeOpacity={isFinished ? 1 : 0.7} 
+          style={[styles.cancelButton, isFinished && styles.disabledButton]}
+          disabled={isFinished}
+        >
+          <Text style={isFinished ? styles.disabledText : styles.buttonText}>Cancelar Horários</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -162,5 +179,24 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderRadius: 8,
     alignItems: "center",
+  },
+  finishButton: {
+    backgroundColor: Colors.success,
+    marginTop: 24,
+    paddingTop: 14,
+    paddingBottom: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  disabledButton: {
+    backgroundColor: Colors.zinc_600,
+  },
+  buttonText: {
+    color: Colors.zinc_100,
+    fontWeight: 'bold',
+  },
+  disabledText: {
+    color: Colors.zinc_400,
+    fontWeight: 'bold',
   },
 });
