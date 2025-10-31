@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import api from "@/lib/axios";
 import { BarberAvailabilityData, BarberData } from "@/@types/barber";
@@ -271,7 +272,13 @@ export default function BarberList() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-          <Text style={styles.listTitle}>Agendamentos Pendentes</Text>
+          <View style={styles.navTitle}>
+            <Text style={styles.listTitle}>Agendamentos Pendentes</Text>
+            
+            <TouchableOpacity onPress={() => router.push("/(dashboard)/history-barber/page")}>
+              <Ionicons name="time-outline" size={28} style={styles.icon}/>
+            </TouchableOpacity>
+          </View>
 
           {(() => {
             if (isLoading) {
@@ -397,6 +404,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 8,
+  },
+  navTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  icon: {
+    color: Colors.zinc_400,
+    marginRight: 8,
   },
   profile: {
     width: 56,
